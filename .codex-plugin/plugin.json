@@ -1,0 +1,14 @@
+{
+  "name": "smartlib-skills",
+  "version": "1.0.0",
+  "description": "SmartLib Research Toolkit — AI-powered literature search (1.2B records), citation verification, and academic knowledge base. Covers the entire academic writing workflow.",
+  "author": "SmartLib",
+  "license": "MIT",
+  "skills": "./skills/",
+  "displayName": "SmartLib 科研工具集",
+  "shortDescription": "文献检索 + AI引用核查 + 学术知识库，覆盖论文写作全流程",
+  "category": "Research",
+  "capabilities": ["literature-search", "citation-verification", "knowledge-management", "pdf-download"],
+  "websiteURL": "https://github.com/J-levee/smartlib-skills",
+  "privacyPolicyURL": "https://github.com/J-levee/smartlib-skills#readme"
+}

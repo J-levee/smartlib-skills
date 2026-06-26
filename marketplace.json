@@ -1,0 +1,19 @@
+{
+  "name": "smartlib-skills",
+  "interface": {
+    "displayName": "SmartLib 科研工具集"
+  },
+  "plugins": [
+    {
+      "name": "smartlib-skills",
+      "source": {
+        "source": "github",
+        "repo": "J-levee/smartlib-skills"
+      },
+      "policy": {
+        "installation": "AVAILABLE"
+      },
+      "category": "Research"
+    }
+  ]
+}

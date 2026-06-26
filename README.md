@@ -1,6 +1,6 @@
 # SmartLib 科研工具集
 
-> Claude Code 插件 — 覆盖论文写作全流程的科研效率工具
+> 跨平台科研效率工具 — 文献检索（12亿文献）+ AI引用核查 + 学术知识库
 
 ## 包含技能
 
@@ -13,10 +13,23 @@
 
 ## 快速开始
 
-在 Claude Code 中安装：
+### Claude Code
 
 ```
 /plugin install smartlib-skills@claude-plugins-official
+```
+
+### Codex CLI
+
+```
+# 添加本仓库为插件市场源
+/plugin marketplace add J-levee/smartlib-skills
+
+# 安装插件
+/plugin install smartlib-skills@smartlib-skills
+
+# 重载激活
+/reload-plugins
 ```
 
 安装后直接对话使用：
@@ -30,7 +43,8 @@
 
 | 平台 | 状态 |
 |------|:--:|
-| Claude Code 官方市场 | ✅ |
+| Claude Code 官方市场 | ✅（审核中） |
+| Codex CLI | ✅ |
 | SkillHub | ✅ |
 | ClawHub | ✅ |
 
