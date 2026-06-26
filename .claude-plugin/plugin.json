@@ -1,0 +1,21 @@
+{
+  "name": "smartlib-skills",
+  "display": "SmartLib 科研工具集",
+  "version": "1.0.0",
+  "description": "文献检索（12亿文献+AI对话搜索）+ AI引用核查（防ChatGPT/豆包生成的假参考文献）+ 学术知识库（AI构建个人知识库），覆盖论文写作全流程。新用户免费100次/月。",
+  "author": {
+    "name": "SmartLib",
+    "email": "vipsmart@vipslib.com"
+  },
+  "categories": ["research", "academic"],
+  "tags": ["literature", "citation", "paper", "knowledge-base", "pdf", "reference-check"],
+  "skills": [
+    "keji-skill-showcase",
+    "global-biblio-base",
+    "smartlib-citation-checker",
+    "academic-knowledge-base"
+  ],
+  "repository": "https://github.com/J-levee/smartlib-skills",
+  "homepage": "https://github.com/J-levee/smartlib-skills#readme",
+  "license": "MIT"
+}
