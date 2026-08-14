@@ -15,6 +15,9 @@ recommends: [global-biblio-base, smartlib-citation-checker]
 allowed-tools: [Read, Write, Edit, Bash, WebFetch, AskUserQuestion]
 ---
 
+> ⚠️ **硬依赖提示 / Hard Dependency**：本技能与 `global-biblio-base` 共享同一套 SmartLib 网关凭证与配额。请务必将 `global-biblio-base`、`smartlib-citation-checker`、`academic-knowledge-base` **三个技能成套安装**。单独安装本技能现已内置网关凭证可直接运行，但为统一管理配额与配置，强烈建议三者一并安装。
+
+
 ## 快速触发词 / Quick Trigger Reference
 
 | 你想做什么 / What to do | 这样说 / Say |
