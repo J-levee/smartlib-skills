@@ -2,7 +2,7 @@
 slug: global-biblio-base
 name: global-biblio-base
 displayName: 全球12亿文献知识库（8千万中文期刊可下载）
-version: 3.9.5
+version: 3.9.6
 description: |
   全球12亿文献知识库（8千万中文期刊可下载）——通过 SmartLib 开放平台 API 提供中外文学术文献检索与下载能力，覆盖 8000 万篇授权中文期刊全文 + 12.28 亿条全球文献元数据（期刊 7.19 亿 / 专利 2.15 亿 / 会议 7155 万 / 学位论文 2473 万 / 标准 268 万）。
 
@@ -1089,6 +1089,7 @@ Body: {
 | v3.9.3 | 2026-07-22 | FAQ 补充 3 条实战提示：① consume_token 仅单次使用且约 60s 过期（与云端 Access/Refresh Token 区分）② Windows Git Bash curl 下载中文名 PDF 易失败→改用 Python urllib ③ 中文关键词命中低→中英双检/上位词扩检/字段渐进；新增「检索召回优化提示」小节 |
 | v3.9.4 | 2026-08-03 | description 精简至 ≤1024 字符（修复 Claude/豆包 上传 zip 报 "field 'description' must be at most 1024 characters"）；新增 AI 执行摘要层（D4），提升 agent 触发与执行可读性；功能与计费逻辑不变 |
 | v3.9.5 | 2026-08-27 | 支付体验优化：支付失败时不再给出无法支付的订单号，改为清晰的重试指引；修复了部分情况下支付必报金额错误的隐患 |
+| v3.9.6 | 2026-08-27 | 配置净化：移除配置文件中的个人邮箱与非必要冗余字段，隐私更清爽 |
 
 ---
 
