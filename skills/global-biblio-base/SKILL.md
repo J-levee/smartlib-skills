@@ -2,25 +2,30 @@
 slug: global-biblio-base
 name: global-biblio-base
 displayName: 全球12亿文献知识库（8千万中文期刊可下载）
-version: 3.6
+version: 3.9.5
 description: |
-  全球12亿文献知识库（8千万中文期刊可下载）——覆盖8000万篇授权中文期刊全文+12.28亿条全球文献元数据（含期刊7.19亿、专利2.15亿、会议论文7155万、学位论文2473万、标准268万等）。
-  内置三级检索策略（宽检索高查全/窄检索高查准/平衡策略），支持关键词检索、文献详情查看、全文下载（中文直接下载+外文十级渠道自动探测+OA免费下载）、迭代优化检索、引文追溯、分类号检索、结果质量评估。
-  ✨ 亮点：每篇文献提供原始数据库来源链接（覆盖300+数据库，如Scopus/WoS/EI/PubMed等，覆盖率100%，平均4.75个链接/篇），可直接跳转验证文献真实性。
-  💎 OA文献下载：OA文献（Gold/Hybrid/Bronze/Green OA）通过十级渠道免费获取PDF，不消耗SmartLib配额。
-  全程自动化：首次使用自动注册开通（免费100次/月），按实际API调用次数计费（共5个接口：中文检索/全球检索/中文详情/全球详情/全文下载，每次调用计1次），配额自动消耗，用尽后引导充值续费。配额耗尽后暂停检索服务，直接提示充值。全程对话驱动，无需人工申请或独立平台。
-  适用于用户需要查找中外文学术论文、期刊文献、学位论文、专利、标准等场景。
-  当用户表达"查论文""找文献""检索学术""搜索期刊""查专利""找标准""找论文""搜文献""学术检索""文献调研""文献综述""下文献""下论文""下载论文""论文下载""搜论文""查SCI""查EI""英文论文""中文论文""论文搜索""文献搜索""学术搜索""找参考文献""写毕业论文""开题报告文献""课题查新""论文查新""文献调研工具""考研文献""帮我找论文""论文在哪找""怎么查文献"等意图时触发。
-  也适用于用户提到具体学术主题并希望获取相关论文的场景，如"帮我找一些关于XX的论文""XX领域有哪些研究""帮我写文献综述""引用几篇文献支撑论点"。
-  英文触发词："find papers", "search literature", "write literature review", "find supporting citations", "search papers", "literature review"。
-  若检测到 API 凭证未配置，自动通过 smartlib-gateway 注册开通（免费 100 次/月），全程对话驱动无需人工申请。
-  / Global 1.2B literature knowledge base (80M Chinese journal articles downloadable).
-  Three-tier search strategy (broad/high-recall, narrow/high-precision, balanced), keyword search, detail view, full-text download, iterative refinement, citation tracing, classification-based search, result quality assessment.
-  Fully automated: auto-registration (100 free/month), quota consumed per API call (search/detail/download each=1 call), auto quota tracking, WeChat Pay recharge available. When quota exhausted, search service paused with recharge prompt.
-  Triggers on Chinese/English intents like "find papers", "search literature", "查论文", "找文献", "学术检索", "write literature review", "find supporting citations".
-  Auto-detects missing API credentials and auto-registers via SmartLib Gateway (100 free/month).
+  全球12亿文献知识库（8千万中文期刊可下载）——通过 SmartLib 开放平台 API 提供中外文学术文献检索与下载能力，覆盖 8000 万篇授权中文期刊全文 + 12.28 亿条全球文献元数据（期刊 7.19 亿 / 专利 2.15 亿 / 会议 7155 万 / 学位论文 2473 万 / 标准 268 万）。
+
+  能力：中英文关键词检索、文献详情、中文期刊 PDF 全文下载、外文 OA 文献十级渠道免费下载（不消耗配额）、智能关键词扩展、核心期刊优先排序、相关性重排、引文追溯、分类号检索。
+
+  配额：首次使用自动注册，免费 100 次检索 + 10 次下载 / 月；耗尽自动弹出套餐（体验卡 / 个人版月 / 专业版月 / 单篇下载 / 下载包），可说「升级 / 充值」唤起；企业 / 机构定制联系 vipsmart@vipslib.com。
+
+  触发：用户表达"查论文""找文献""检索学术""搜期刊""查专利""找标准""下论文""写文献综述""找参考文献""查 SCI/EI"等意图时启用；也适用"帮我找关于 XX 的论文""写文献综述""找几篇引用支撑论点"。英文："find papers" "search literature" "write literature review" "find supporting citations"。
+
+  调用前必须先用 /consume 获取 consume_token，再凭 token 调 /search（每次计费接口调用都需一次 /consume）。
 agent_created: true
 ---
+
+## 🤖 AI 执行摘要 / AI Execution Summary（先读这段）
+
+- **何时触发**：用户要查 / 找 / 下载中外文学术文献（论文、期刊、专利、标准、学位论文），或要写文献综述、找引用支撑、做课题查新。
+- **不触发（转其他技能）**：引用核查 / "这篇是真的吗" → `smartlib-citation-checker`；论文写作辅助、非文献类查询。
+- **两个前置硬规则**：① 动手前必须先向用户索取邮箱（禁止用 config 预填邮箱、禁止臆造邮箱）；② 每次计费接口调用前先 `/consume` 取 `consume_token`，再带 token 调 `/search`（token 单次使用、约 60s 有效，过期/已用需重新 `/consume`）。
+- **输入**：用户自然语言检索意图 + 邮箱。
+- **产出**：检索结果列表（含核心收录标注、原始数据库来源链接）、文献详情、PDF 下载链接（中文期刊直下 / 外文 OA 多渠道探测）。
+- **配额模型**：免费 100 次检索 + 10 次下载 / 月；耗尽时 Gateway 返回 429，技能自动弹出套餐卡片（体验卡 / 个人版月 / 专业版月 / 单篇下载 / 下载包），用户也可说「升级 / 充值」唤起；企业 / 机构定制联系 vipsmart@vipslib.com。
+- **红线**：不改功能；不臆造邮箱；不在对话中泄露 `SMARTLIB_GATEWAY_SECRET`；付费墙内外文文献无法获取全文。
+- **凭证来源**：`config.json` → `SMARTLIB_GATEWAY_URL` / `SMARTLIB_GATEWAY_SECRET`（SMARTLIB_EMAIL 运行后由注册写入，勿预填）。
 
 # 全球12亿文献知识库（8千万中文期刊可下载）
 
@@ -84,8 +89,8 @@ agent_created: true
   GET <SMARTLIB_GATEWAY_URL>/quota?email=<SMARTLIB_EMAIL>
   Headers: {"Authorization": "Bearer <SMARTLIB_GATEWAY_SECRET>"}
 
-  返回字段: total_remain, email_verified, plan
-  （完整返回: user_id, email, plan, trial_total, trial_used, trial_remain, paid_total, paid_used, paid_remain, paid_expires_at, total_remain, email_verified）
+  返回字段: total_remain, email_verified, plan, download_quota_free, download_reset_at, download_paid_remain, download_remain
+  （完整返回: user_id, email, plan, trial_total, trial_used, trial_remain, paid_total, paid_used, paid_remain, paid_expires_at, total_remain, email_verified, download_quota_free, download_reset_at, download_paid_remain, download_remain）
   
   如果返回 404 "not_registered" → 用户可能已被重置/删除
     → 提示: "检测到您的账户需要重新绑定，正在自动重新注册..."
@@ -94,7 +99,7 @@ agent_created: true
   
   total_remain > 20 → 静默进入检索
   total_remain 5-20 → 尾部轻提示: "📊 本月剩余 {n} 次"
-  total_remain 1-5  → 警告: "⚠️ 接近用尽（剩余 {n} 次），回复「充值」查看套餐（数字 1-4 选）"
+  total_remain 1-5  → 警告: "⚠️ 接近用尽（剩余 {n} 次），已为你列出可用套餐（见下方💰章节），需要更高额度随时说「升级」"
   total_remain 0    → 配额耗尽处理（见配额耗尽章节）
 
   额外检查:
@@ -154,7 +159,7 @@ agent_created: true
    Body: {"email": "<SMARTLIB_EMAIL>", "skill_source": "global-biblio-base"}
 
    返回 200 → 获取 consume_token，继续
-   返回 429 → 配额已用完，终止后续调用，提示充值
+   返回 429 → 配额已用完，终止后续调用，按 §配额耗尽处理 自动弹出套餐选择
 
 ② POST <SMARTLIB_GATEWAY_URL>/search
    Headers: {"Authorization": "Bearer <SMARTLIB_GATEWAY_SECRET>"}
@@ -207,110 +212,104 @@ agent_created: true
 
 ---
 
-## 💰 支付与充值 / Payment & Recharge
+## 💰 套餐与额度 / Plans & Quota
 
-### 触发时机
-1. 配额为 0 (gateway 返回 429)
-2. 用户说 "充值" "续费" "购买"
+- 计费与升级由 SmartLib **统一钱包**管理，所有文献检索技能**统一定价、配额共享**。
+- **配额不足时自动弹套餐**：检索或下载配额接近用尽 / 已耗尽时，技能直接在对话中弹出下方套餐选择卡片，无需用户说任何口令；用户也可主动说「升级 / 充值 / 购买 / 我要升级」唤起同一卡片。
+- 企业 / 机构定制（API 接入、私有化部署）请联系 vipsmart@vipslib.com。
 
-### 套餐列表
+### 当前套餐（与云端 v3.9.1 同步）
 
-| 套餐 | plan key | 价格(元) | 配额 | 说明 |
-|------|----------|---------|------|------|
-| 体验包 | `trial` | 9.90 | 1000 次 | 限购 1 次 |
-| 基础月付 | `basic` | 29.00 | 5000 次/月 | 个人用户 |
-| 进阶月付 | `pro` | 99.00 | 20000 次/月 | 轻度团队 |
-| 专业月付 | `enterprise` | 299.00 | 100000 次/月 | 重度使用 |
+| 套餐 | plan key | 价格 | 检索次数 | 下载次数 | 有效期 | 限购 | 适用 |
+|------|----------|------|---------|---------|--------|------|------|
+| 体验卡 | `trial_card` | ¥9.9 | 1000 | 20 | 7天 | 每用户1次 | 尝鲜/临时 |
+| 个人版月 | `personal_month` | ¥39 | 1000 | 50 | 30天 | — | 个人常规 |
+| 专业版月 | `pro_month` | ¥99 | 2000 | 200 | 30天 | — | 重度/小团队 |
+| 单篇下载 | `single_download` | ¥2.5 | 0 | 1 | 不限 | — | 只差几篇下载 |
+| 下载包 | `download_pack` | ¥20 | 0 | 10 | 30天 | — | 批量下载 |
+| 企业/机构 | `enterprise` | 暂停 | — | — | — | — | 联系我们 |
 
-> **plan key**：调用 `/api/pay/create` 时传 `trial`/`basic`/`pro`/`enterprise`。金额单位为**元**（非分）。
+> 下载耗尽时优先推荐「单篇下载 / 下载包」；检索耗尽时优先推荐「体验卡 / 个人版月 / 专业版月」。
 
-### 支付流程（对话交互，数字选套餐）
-
-全部在对话中完成，用户只需回复数字：
+### 支付流程（对话内完成，用户回复数字即可）
 
 ```
-配额耗尽/用户说"充值" →
-    ↓
-⓪ 展示套餐卡片（show_widget），用数字①②③④标注:
-   ① 体验包 ¥9.90 — 1,000 次/月
-   ② 基础月付 ¥29.00 — 5,000 次/月
-   ③ 进阶月付 ¥99.00 — 20,000 次/月 [推荐]
-   ④ 专业月付 ¥299.00 — 100,000 次/月
-   用户回复数字 (如 "3")
-    ↓
-   映射: "1"→trial, "2"→basic, "3"→pro, "4"→enterprise
-    ↓
-① 调 Gateway 生成订单:
-  POST {SMARTLIB_GATEWAY_URL}/api/pay/create
-  Headers: {"Authorization": "Bearer {SMARTLIB_GATEWAY_SECRET}"}
-  Body: {"plan": "basic", "amount": 29.00, "quota": 5000, "email": "{SMARTLIB_EMAIL}"}
-
-  返回: {"code_url": "weixin://...", "out_trade_no": "WB...", "amount": 29.00, "plan": "basic", "quota": 5000}
-    ↓
-② 生成带订单信息的二维码 HTML 页面，用 preview_url 在对话内展示:
-
-  **页面必须包含：套餐名称、金额、配额标签、二维码、订单号**
-  用 qrcode.js CDN 将 code_url 渲染为二维码。
-  样式参考：渐变紫色背景 + 白色卡片 + 居中布局。
-
-  ⚠️ 不要在卡片内容中显示用户邮箱
-
-    ↓
-③ 轮询支付状态:
-  GET {SMARTLIB_GATEWAY_URL}/api/pay/status?out_trade_no=xxx
-  (间隔 3s 轮询,最多轮询 20 次 ≈ 60s，超时提示重新发起)
-
-  支付成功时返回:
-  {"status":"paid", "auto_recharged":true, "quota_remain":5000, "quota_total":5100, "quota_used":100}
-    ↓
-④ 对话中通知结果:
-  "✅ 支付成功! 已自动充值 5000 次，当前剩余 5000 次。"
-    ↓
-  自动重试上次中断的检索
+检测到配额信号（/quota 返回 quota_low / quota_exhausted，或 /consume 返回 429，或 download_remain==0）
+   ↓
+① 渲染套餐卡片（数字①②③④⑤标注，如上表），并提示"回复数字选择，扫码即付"
+   用户回复数字 → 映射 plan key（如 "3" → pro_month）
+   ↓
+② 创建订单:
+   POST {SMARTLIB_GATEWAY_URL}/api/pay/create
+   Headers: 无需认证（网关仅校验邮箱已注册，不要求 Authorization；严禁在对话/前端暴露任何密钥）
+   Body: {"plan": "<plan_key>", "email": "<已注册用户邮箱>", "amount": <套餐价格，单位「元」，须与上表「价格」列完全一致>}
+   ⚠️ email 必须是当前已注册用户邮箱（来自注册/配额上下文），严禁使用 config 里的 SMARTLIB_EMAIL（其值为 null）。
+   ⚠️ amount **必填且必须精确等于上方套餐表的「价格」**（网关会校验，偏差 >0.01 元直接 400 amount_mismatch）。取值：trial_card=9.9 / personal_month=39 / pro_month=99 / single_download=2.5 / download_pack=20。严禁留空、严禁写 0、**严禁用「分」**（如 990 会被判成 ¥990 而失败）。
+   返回: {"code_url", "out_trade_no", "amount", "plan", "quota"}
+   ↓
+③ 生成微信支付二维码 HTML（用 qrcode.js 渲染 code_url；页面含套餐名/金额/配额/二维码/订单号；禁止显示用户邮箱）
+   ↓
+④ 轮询支付状态:
+   GET {SMARTLIB_GATEWAY_URL}/api/pay/status?out_trade_no=<out_trade_no>
+   （3s 轮询，最多 20 次≈60s；超时提示重新发起）
+   支付成功返回 {"status":"paid","auto_recharged":true,...} → 对话通知"✅ 支付成功，已到账 N 次" + 自动重试上次中断的检索
 ```
 
-### 为什么不需要 /recharge？
-支付回调 (`/api/pay/notify`) 由微信支付服务器直接通知 Gateway，Gateway 在回调中**同一事务内**完成标记订单 paid + 累加配额。`/api/pay/status` 查询到 paid 时配额已到账，无需额外操作。
+### ⚠️ 半成功态（微信繁忙 / 502）处理
+
+`/api/pay/create` 在「订单已建、但微信侧暂忙」时会返回 **502**。新网关（v52.4+ 落库对账版）会在响应体里带回真实 `out_trade_no`（形如 `{"error":"wechatpay_error","out_trade_no":"WB...","code_url":null,"status":"wechat_failed"}`）；旧网关可能不含该字段。两种情况处理不同：
+
+正确处理方式（务必遵守）：
+
+1. **绝不展示任何你自行推断/拼接/记忆的订单号。** 只允许展示网关响应里真实返回的 `out_trade_no`。
+2. 若 502 响应**含** `out_trade_no`（新网关）：直接展示真实单号，并说明支付码暂未生成：
+   > 微信支付通道暂时繁忙，订单已提交（订单号 {out_trade_no}）但支付二维码暂未生成。请 1~2 分钟后回复「重试」，我会生成新的支付码。此过程未产生任何扣款。
+3. 若 502 响应**不含** `out_trade_no`（旧网关兜底）：用通用话术，**绝不补号**：
+   > 微信支付通道暂时繁忙，订单已提交但未生成支付二维码。请 1~2 分钟后回复「重试」，我会重新发起并生成新的支付码。此过程未产生任何扣款。
+4. 说明：**每次「重试」都会由网关新建一笔订单**，旧 pending 订单自动失效、无害，用户无需做任何清理。
+5. **不要说「复用此订单重试」**——网关不支持复用 pending 单重新发起支付，重试一定是新单。
+
+> 对比：若返回 **200** 且 body 含 `code_url` + `out_trade_no`，才是真正下单成功，此时才渲染二维码并展示真实订单号（见上方 ③）。
 
 ### 安全机制
-- 网关通过 `out_trade_no` UNIQUE 索引防重复充值
-- 二维码 5 分钟有效, 超时需重新发起
-- `/api/pay/status` 为公开端点（无需 Bearer Token），可直接轮询
-- `SMARTLIB_GATEWAY_SECRET` 仅供后端调用, 不在对话中输出
-- ⚠️ 生成的支付 HTML 页面上**禁止显示用户邮箱**，仅显示套餐信息
+- `out_trade_no` UNIQUE 防重复充值；二维码 5 分钟有效
+- `/api/pay/status` 为公开端点（无需 Bearer），可直接轮询
+- `SMARTLIB_GATEWAY_SECRET` 仅后端调用，不在对话中输出
+- 生成的支付页面**禁止显示用户邮箱**
 
 ---
 
 ## 🔒 配额耗尽处理 / Quota Exhaustion
 
-配额耗尽后，**暂停新的检索请求**，不再展示任何部分结果。
+配额耗尽后，**暂停新的检索请求**，不再展示任何部分结果，并**自动弹出套餐选择卡片**（见上方💰章节），不再要求用户说「我要升级」。
 
 | 状态 | 行为 |
 |------|------|
 | **配额充足** (>0) | 正常执行检索，完整展示所有结果（含详情查看、全文下载、智能排序） |
-| **配额耗尽** (=0) | Gateway 返回 429，**拒绝服务**，直接提示充值 |
+| **配额偏低** (≤10 且无付费余额) | 尾部轻提示 + 自动弹出套餐卡片（软引导） |
+| **配额耗尽** (=0) | Gateway 返回 429，拒绝服务，**自动弹出套餐卡片**（硬引导）；企业 / 机构定制仍联系我们 |
 
-配额耗尽后的提示格式：
+配额耗尽时的引导格式：
 
 ```
-⚠️ 您的 SmartLib 检索配额已用尽（0/100次）。
+⚠️ 您的 SmartLib 配额已用尽，已为您列出可用套餐：
 
-当前配额不支持发起新检索。请充值后继续使用。
+① 体验卡 ¥9.9 — 1000 检索 + 20 下载 / 7天
+② 个人版月 ¥39 — 1000 检索 + 50 下载 / 30天
+③ 专业版月 ¥99 — 2000 检索 + 200 下载 / 30天
+④ 单篇下载 ¥2.5 — 1 次下载
+⑤ 下载包 ¥20 — 10 次下载 / 30天
 
-> 💰 充值套餐：
-> 体验包：¥9.90 / 1000次
-> 月付基础：¥29.00 / 5000次/月
-> 月付进阶：¥99.00 / 20000次/月
-> 月付专业：¥299.00 / 100000次/月
-> 回复「充值」查看套餐（回复数字 1-4 选择），支付后立即生效。
+回复数字选择，或说「升级 / 充值」重新唤起。
+企业 / 机构批量定制、API 接入或私有化部署请联系：
+📧 vipsmart@vipslib.com  ☎️ 023-63016015  🌐 https://www.vipslib.com/
 ```
 
 **重要规则**：
-- 配额耗尽后，**所有检索请求一律拒绝**，不展示任何结果
-- 用户需先充值恢复配额，才能继续使用检索功能
-- 充值后立即生效，无需等待
+- 配额耗尽后，所有检索请求一律拒绝，不展示任何结果
+- 不再要求用户说「我要升级」——配额信号会自动唤起套餐卡片
+- 企业 / 机构定制仍联系我们
 
----
 
 ## 输出规范 / Output Standards
 
@@ -321,7 +320,7 @@ agent_created: true
 ```
 或接近耗尽时：
 ```
-⚠️ 剩余 3 次 (共 100 次/月)，回复「充值」选套餐
+⚠️ 剩余 3 次 (共 100 次/月)，已为你列出可用套餐（回复数字即可购买，或说「升级」唤起）
 ```
 
 ```
@@ -716,7 +715,7 @@ Body: {
 }
 ```
 
-检索表达式和过滤规则与中文期刊检索完全相同。返回数据结构同 API 1，结果列表字段为 `Data.List`。
+检索表达式和过滤规则与中文期刊检索完全相同。网关统一返回结构：`{"data": {"list": [...], "total": N}, "notifications": [...]}`，**结果列表字段为 `data.list`（全小写）**；若个别旧接口回传 PascalCase（`Data.List`），请回退查找该键。
 
 ### 5. 全球文献详情 / Global Literature Detail
 
@@ -793,21 +792,70 @@ Body: {
 - 下载结果以标记形式追加到结果列表中，并在末尾输出「全文获取报告」汇总表
 - **未触发下载时**：仅展示元数据，不执行任何下载操作
 
-### 关键词智能扩展 / Smart Keyword Expansion
+### 关键词智能扩展 v2 / Smart Keyword Expansion v2
 
-每次检索前，先对用户提供的核心关键词进行中英文同义词扩展，以显著提升召回率。
+> ⚠️ **核心原则**：SmartLib API 后端分词器（类似 IK Analyzer / mmseg4j）对中文复合词的索引已较完善。**召回不足的首要原因不是分词颗粒度问题，而是缩写/别名缺失、跨语言鸿沟和字段策略不当。**
 
-**扩展维度 / Expansion Dimensions:**
+每次检索前，按以下 4 层策略扩展关键词：
 
-| 维度 | 说明 | 示例 |
-|------|------|------|
-| 中文同义词 | 学术语境下的等价表述 | "大语言模型" → "大模型" "LLM" |
-| 英文同义词 | 英文学术常用表述 | "deep learning" → "deep neural network" |
-| 中英互译 | 中英文之间的对照词 | "知识图谱" ↔ "knowledge graph" |
-| 缩写/全称 | 学术缩写及其展开 | "NLP" → "natural language processing" |
-| 上下位词 | 更泛化或更具体的表述 | "深度学习" → "机器学习"（上位） |
+**第1层：缩写/别名扩展（优先级最高，实测 +122% 召回）**
 
-**检索表达式构建规则：** 同义词组内用 `OR` 连接，不同概念组间用 `AND` 连接。扩展词数量控制在每概念组 3-8 个。
+内置高频学术术语映射表（无需联网，即时可用）：
+
+| 用户常用词 | 必须扩展的别名/缩写 | 扩展后召回提升 |
+|-----------|-------------------|---------------|
+| 大语言模型 | LLM, 大模型, large language model | +122% |
+| 人工智能 | AI, artificial intelligence | +18% |
+| 自然语言处理 | NLP, natural language processing | — |
+| 深度学习 | deep learning, DNN, 深度神经网络 | — |
+| 机器学习 | machine learning, ML | +22% |
+| 计算机视觉 | CV, computer vision, 机器视觉 | — |
+| 知识图谱 | knowledge graph, KG | — |
+| 推荐系统 | recommender system, 个性化推荐 | — |
+| 强化学习 | reinforcement learning, RL | — |
+| 联邦学习 | federated learning, FL | — |
+| 区块链 | blockchain, 分布式账本 | — |
+| 物联网 | IoT, Internet of Things | — |
+| 数字孪生 | digital twin | — |
+| 元宇宙 | metaverse | — |
+| 碳中和 | carbon neutrality, 碳达峰 | — |
+| 文献检索 | 信息检索, information retrieval, 文献搜索 | — |
+| 分词 | 中文分词, word segmentation, tokenization, 切词 | — |
+| BERT | bidirectional encoder representations | — |
+| GPT | generative pre-trained transformer | — |
+| CNN | convolutional neural network, 卷积神经网络 | — |
+| RNN | recurrent neural network, 循环神经网络 | — |
+| GAN | generative adversarial network, 生成对抗网络 | — |
+
+> **规则**：只要用户关键词命中上表左列，必须自动添加右列的扩展词。**AI 还应自行推理**——遇到表外术语时，联网搜索其标准缩写和英文对应词（如"Swin Transformer" → "Swin Transformer, Swin-T"）。
+
+**第2层：中英互译扩展**
+
+- 中文关键词 → 必须补英文对应词（通过联网搜索确认学术通用译名）
+- 英文关键词 → 必须补中文对应词
+- 示例：`知识图谱` → 扩展 `knowledge graph`；`segmentation` → 扩展 `分割, 语义分割`
+
+**第3层：上下位词扩展（按需，联网搜索）**
+
+- 结果 < 10 条时执行：用上位词扩大范围，或用下位词增加相关结果
+- 示例：`深度学习` 结果少 → 上位词 `机器学习`；`自然语言处理` 结果少 → 下位词 `文本分类, 命名实体识别`
+
+**第4层：同义词/近义词扩展（联网搜索）**
+
+- 通过联网查询学术语境下的等价表述
+- 示例：`文献检索` → 补充 `文献发现, 文献获取, 资源发现`
+
+**检索表达式构建规则：**
+
+1. 同义词组内用 `OR` 连接，不同概念组间用 `AND` 连接
+2. 每组扩展词控制在 3-8 个，**缩写词优先**（收益最大）
+3. **重要**：中文和英文扩展词必须在同一个 OR 组内，而非分开
+   - ✅ `(K=大语言模型 OR K=大模型 OR K=LLM OR K=large language model)`
+   - ❌ `(K=大语言模型 OR K=大模型) AND (K=LLM OR K=large language model)`
+4. 默认字段使用 `K=`（关键词字段，精度和召回最均衡）
+5. **中文复合词不拆解**（API 后端分词已处理。实测：拆解为单字/n-gram 对召回增益 <15% 但噪声激增）
+   - ✅ `K=自然语言处理`
+   - ❌ `K=自然 AND K=语言 AND K=处理`（噪声大，不推荐）
 
 ### 结果智能排序 / Smart Result Ranking
 
@@ -838,14 +886,18 @@ Body: {
 
 ### 自然语言转检索表达式示例 / NL-to-Query Examples
 
+> **字段默认使用 `K=`（关键词），而非 `U=`（全字段）。`K=` 精度高、噪声少，是学术检索的标准字段。**
+
 | 用户需求 | 扩展后的 Rule | FilterRule | 接口 |
 |---------|------|-----------|------|
-| 找关于深度学习的论文 | `(U=深度学习 OR U=深度神经网络 OR U=deep learning OR U=DNN)` | - | 接口1+4 |
-| 清华大学发表的人工智能相关论文 | `(K=人工智能 OR K=AI) AND O=清华大学` | `TY=3` | 接口1 |
-| 2024年中文期刊上关于大模型的文章 | `(K=大语言模型 OR K=大模型 OR K=LLM)` | `TY=3 AND Y=2024 AND LA=ZH` | 接口1 |
-| Nature 期刊上的量子计算论文 | `(K=quantum computing) AND P=Nature` | - | 接口4 |
+| 找关于深度学习的论文 | `(K=深度学习 OR K=deep learning OR K=DNN OR K=深度神经网络)` | - | 接口1+4 |
+| 清华大学发表的人工智能相关论文 | `(K=人工智能 OR K=AI OR K=artificial intelligence) AND O=清华大学` | `TY=3` | 接口1 |
+| 2024年中文期刊上关于大模型的文章 | `(K=大语言模型 OR K=大模型 OR K=LLM OR K=large language model)` | `TY=3 AND Y=2024 AND LA=ZH` | 接口1 |
+| Nature 期刊上的量子计算论文 | `(K=quantum computing OR K=量子计算) AND P=Nature` | - | 接口4 |
 | 查找计算机领域的专利 | `(K=计算机 OR K=computer)` | `TY=7` | 接口4 |
-| 2023-2025年的深度学习综述 | `(T=深度学习 OR T=deep learning) AND (T=综述 OR T=review)` | `Y=2023 OR Y=2024 OR Y=2025` | 接口1+4 |
+| 2023-2025年的深度学习综述 | `(T=深度学习 OR T=deep learning) AND (T=综述 OR T=review OR T=survey)` | `Y=2023 OR Y=2024 OR Y=2025` | 接口1+4 |
+| 找关于知识图谱的论文 | `(K=知识图谱 OR K=knowledge graph OR K=KG)` | - | 接口1+4 |
+| NLP领域最新研究 | `(K=NLP OR K=自然语言处理 OR K=natural language processing)` | `Y=2024 OR Y=2025` | 接口1+4 |
 
 ### 高级检索技巧 / Advanced Search Techniques
 
@@ -865,14 +917,38 @@ Body: {
 
 #### 字段选择策略矩阵 / Field Selection Matrix
 
+> **默认使用 `K=`（关键词字段）**。这是学术检索的标准做法——知网的"主题"检索、维普的人工标引关键词、WoS 的 Topic Search 均以关键词/主题词为核心检索入口。
+
 | 字段 | 精度 | 覆盖 | 最佳场景 |
 |------|------|------|------|
-| `U=` 全部字段 | 低 | 最高 | 宽泛探索 |
-| `K=` 关键词 | 中 | 高 | 常规检索（默认） |
-| `T=` 题名 | 最高 | 低 | 精准匹配、引用确认 |
+| `K=` 关键词 | 中 | 高 | **常规检索（默认）** — 对标知网"主题"检索 |
+| `T=` 题名 | 最高 | 低 | 精准匹配、引用确认 — 对标 WoS "Title" 检索 |
+| `U=` 全部字段 | 低 | 最高 | 查全兜底（仅当 K= 和 T= 结果 < 10 条时使用） |
 | `A=` 作者 | 高 | 低 | 追踪特定研究者 |
 | `O=` 机构 | 中 | 中 | 了解机构研究布局 |
 | `P=` 出版物 | 高 | 中 | 限定高质量期刊 |
+
+**字段分级检索流程 / Progressive Field Strategy:**
+
+```
+默认（平衡策略）：
+  第1轮：K=检索（关键词字段，平衡精度和召回）
+    ├─ 结果 ≥ 10 → 完成 ✅
+    └─ 结果 < 10 → 第2轮
+    
+  第2轮：T=检索（放宽到题名，提高召回）
+    ├─ 结果 ≥ 5 → 合并去重，展示 ✅
+    └─ 结果 < 5 → 第3轮
+    
+  第3轮：U=检索（全部字段，最大召回）
+    → 合并去重（U= 结果可能噪声大，需标注"全字段检索结果"）
+
+宽检索（综述/查全）：
+  同时用 K= + U= 两路并行，取并集去重
+
+窄检索（精准/引用）：
+  优先 T= 精确匹配，K= 辅助补充
+```
 
 ### 结果展示规范 / Result Display Standards
 
@@ -923,7 +999,8 @@ Body: {
 | **403** | 权限不足 | 提示"当前凭证无此接口权限，请确认 API 套餐是否已开通此接口" |
 | **429** | 请求频率超限 | 等待 5 秒后自动重试 |
 | **499** | 参数错误 | 检查 Rule 语法（运算符大写、有空格）、FilterRule 字段代码、PageSize 范围 |
-| **500/502/503** | 服务端错误 | 自动重试 3 次 → 全部失败后提示"SmartLib 服务暂时不可用" |
+| **502（wechatpay_error / 系统繁忙）** | 微信支付通道暂忙（订单已建但未出码） | **不视为服务端故障、不要自动重试 3 次**（重试会加重微信节流）。按「半成功态」话术告知用户稍后重试；响应若带回 `out_trade_no` 可展示真实单号，否则切勿编造 |
+| **500/503** | 网关服务端错误 | 自动重试 3 次（指数退避 1s→2s→4s）→ 全部失败后提示"SmartLib 服务暂时不可用，通常 5 分钟内恢复" |
 | **网络超时** | 请求无响应 | 自动重试 3 次 → 提示"请检查网络是否可访问 data.smart.vipslib.com" |
 | **无结果** | API 返回空列表 | 按「结果数量自适应策略」自动提供扩展建议 |
 | **凭证缺失** | 环境变量未设置 | 自动触发 Pre-flight 注册流程 |
@@ -938,13 +1015,28 @@ Body: {
 | **全文下载失败怎么办？** | 仅中文期刊支持全文下载。下载 URL 约 10 分钟有效，过期需重新调用。英文文献自动走多渠道下载策略获取 OA 版本。 |
 | **Token 多久过期？** | Access Token 30 秒，Refresh Token 2 小时。系统自动管理刷新，用户无感知。 |
 | **英文文献能不能下全文？** | 本技能集成十级多渠道下载策略（ArXiv → Unpaywall → CORE → OpenAlex 等），Gold/Green/Hybrid OA 论文成功率 >85%。付费墙内论文无法获取。 |
-| **配额耗尽后还能用吗？** | 不能。配额耗尽后 Gateway 返回 429 拒绝所有检索请求，必须先充值恢复配额才能继续使用。 |
+| **配额耗尽后还能用吗？** | 不能。试用额度耗尽后 Gateway 返回 429 拒绝所有检索请求，并自动弹出套餐选择；如需更高额度，回复套餐数字或说「升级 / 充值」即可（企业 / 机构定制联系 vipsmart@vipslib.com）。 |
+| **计费 token（consume_token）是一次性的吗？** | **是的，务必注意。** 每次 `/consume` 返回的 `consume_token` **仅能使用一次**且 **约 60 秒过期**。获取后要立刻调用 `/search` 或 `/download`，不要缓存或复用；过期/已用需重新 `/consume`。这与 SmartLib 云端 Access/Refresh Token（30s/2h，系统自动刷新）是两回事。 |
+| **Windows 下用 curl 下载 PDF 失败？** | 返回链接若含中文文件名，Git Bash 的 `curl` 常因 URL 编码失败而下载到空文件/报错。改用 **Python `urllib.request`** 直接拉取（自动处理编码），或直接用浏览器打开链接下载。 |
+| **中文关键词搜不到 / 命中少怎么办？** | 下游检索（维普系）对中文复合词与缩写别名的索引有限，纯中文窄词常召回不足。建议：① 补英文关键词（接口1+接口4 双检）② 用上位词/同义词扩检 ③ 用 `U=` 替代 `T=` ④ 去掉过滤条件扩大范围。详见下方「检索召回优化提示」。 |
+
+---
+
+### 检索召回优化提示（中文关键词命中低时必读）
+
+下游检索（维普系）的分词与别名索引对中文复合词、缩写、中英鸿沟支持有限，**召回不足的首要原因通常不是分词颗粒度，而是缩写/别名缺失、跨语言鸿沟和字段策略不当**。实操清单：
+
+- **中英双检**：同一概念同时用中文（接口1）和英文（接口4）各检一次，覆盖率显著提升。
+- **上位词 / 同义词扩检**：如「深度学习」补「神经网络 / 机器学习」；「新冠」补「COVID-19 / SARS-CoV-2」。
+- **字段渐进**：默认 `K=`（关键词），召回差时改用 `T=`（题名）精准定位，或 `U=`（任意字段）扩检。
+- **去掉过滤条件**：先广后窄，去掉 `TY=`/`LA=` 等过滤扩大范围，再人工筛选。
+- **缩写展开**：机构缩写（如「中科院」→「中国科学院」）、期刊缩写（如「JACS」→「Journal of the American Chemical Society」）务必展开。
 
 ---
 
 ### API 调用注意事项 / API Call Notes
 
-- **检索结果数据路径**：列表字段为 `Data.List`，解析时先尝试 `List`，回退 `Items`
+- **检索结果数据路径**：列表字段为 **`data.list`（全小写）**；解析优先级：`data.list` → `Data.List` → `List`。总条数在 `data.total` / `Data.Total`。
 - **Source 字段需详情接口获取**：检索列表中 `Source` 为空数组，原始数据库链接需调用详情接口。Source 数组元素结构为 `{"Source_DbId": "scopusjournal", "Source_DbTitle": "Scopus", "Source_Link": "https://..."}`，字段说明：`Source_DbId`=数据库标识符，`Source_DbTitle`=数据库中文名称，`Source_Link`=原始数据库详情页链接。平台覆盖300+数据库，100篇样本实测平均每篇4.75个链接，覆盖率100%。
 
 ---
@@ -989,3 +1081,27 @@ Body: {
 | v3.4 | 2026-06 | 文献入口统一，跨技能联动更顺畅 |
 | v3.5 | 2026-06 | 技能调用可溯源，方便了解各渠道使用情况 |
 | v3.6 | 2026-06 | 版本日志优化，展示更简洁 |
+| v3.7 | 2026-07 | 分词匹配优化：4层关键词智能扩展v2（内置术语映射表+中英互译+上下位词）、字段分级检索策略（K→T→U渐进式）、默认检索字段由U=改为K=（对标知网/WoS标准）、NL示例更新（缩写扩展+中英混合）、字段选择矩阵新增分级流程 |
+| v3.8.0 | 2026-07 | 额度模型更新（v51）：暂停 basic/pro/enterprise 付费套餐销售，改为免费试用（100 次检索 + 10 次下载 / 月）+ 联系我们获取更高额度；描述与正文统一移除充值入口，付费引导改为联系方式 |
+| v3.9.0 | 2026-07 | 恢复付费套餐：新增体验卡 / 个人版月 / 专业版月 / 单篇下载 / 下载包多档选择；计费与升级统一由 references/account.md（smartlib-account）管理，所有文献检索技能统一定价、配额共享 |
+| v3.9.1 | 2026-07-19 | /quota 返回字段补充下载额度（download_quota_free / download_reset_at / download_paid_remain / download_remain），与 v52.1 统一钱包对齐 |
+| v3.9.2 | 2026-07-22 | 配额不足时自动弹出套餐选择与微信支付，无需再说「我要升级」；补充完整套餐映射表与支付流程（创建订单/二维码/轮询到账），购买使用已注册用户邮箱 |
+| v3.9.3 | 2026-07-22 | FAQ 补充 3 条实战提示：① consume_token 仅单次使用且约 60s 过期（与云端 Access/Refresh Token 区分）② Windows Git Bash curl 下载中文名 PDF 易失败→改用 Python urllib ③ 中文关键词命中低→中英双检/上位词扩检/字段渐进；新增「检索召回优化提示」小节 |
+| v3.9.4 | 2026-08-03 | description 精简至 ≤1024 字符（修复 Claude/豆包 上传 zip 报 "field 'description' must be at most 1024 characters"）；新增 AI 执行摘要层（D4），提升 agent 触发与执行可读性；功能与计费逻辑不变 |
+| v3.9.5 | 2026-08-27 | 支付体验优化：支付失败时不再给出无法支付的订单号，改为清晰的重试指引；修复了部分情况下支付必报金额错误的隐患 |
+
+---
+
+## 常驻通知转述（v52.2 起）
+
+若任意 SmartLib 网关响应（`/search` 或 `/quota`）的 `notifications` 数组非空，将其中每条的 `text` **原样转述**给用户（含其中的 `url` 链接，用该 `text` 引导用户点击）。**不要改写措辞**，也不要合并多条。
+
+## 📌 企业 / 机构合作
+
+如需机构 / 企业批量定制、API 接入或私有化部署，请联系我们：
+
+- 📧 邮箱：vipsmart@vipslib.com
+- ☎️ 电话：023-63016015
+- 🌐 官网：https://www.vipslib.com/
+
+个人用户的套餐与升级：配额不足时会自动弹出套餐选择，也可主动说「升级 / 充值 / 购买」唤起（见上方💰章节）。
