@@ -2,7 +2,7 @@
 slug: global-biblio-base
 name: global-biblio-base
 displayName: 全球12亿文献知识库（8千万中文期刊可下载）
-version: 3.10.0
+version: 3.10.1
 description: |
   全球12亿文献知识库（8千万中文期刊可下载）——通过 SmartLib 开放平台 API 提供中外文学术文献检索与下载能力，覆盖 8000 万篇授权中文期刊全文 + 12.28 亿条全球文献元数据（期刊 7.19 亿 / 专利 2.15 亿 / 会议 7155 万 / 学位论文 2473 万 / 标准 268 万）。
 
@@ -16,7 +16,7 @@ description: |
 agent_created: true
 ---
 
-## 🤖 AI 执行摘要 / AI Execution Summary（先读这段）
+## 🤖 AI 执行摘要（先读这段）
 
 - **何时触发**：用户要查 / 找 / 下载中外文学术文献（论文、期刊、专利、标准、学位论文），或要写文献综述、找引用支撑、做课题查新。
 - **不触发（转其他技能）**：引用核查 / "这篇是真的吗" → `smartlib-citation-checker`；论文写作辅助、非文献类查询。
@@ -29,17 +29,15 @@ agent_created: true
 
 # 全球12亿文献知识库（8千万中文期刊可下载）
 
-> 中文 / Chinese | [English below each section]
 
 通过 SmartLib 开放平台 API 提供中外文学术文献检索能力。
 
-> Powered by SmartLib Open Platform API. Search across 80M Chinese journal articles and 1B global literature records.
 
 ---
 
-## ⚡ 启动前必须执行 / Pre-flight Checklist
+## ⚡ 启动前必须执行/ Pre-flight Checklist
 
-### Step A：凭证自动检测 & 注册 / Auto Credential Check & Registration
+### Step A：凭证自动检测 & 注册/ Auto Credential Check & Registration
 
 > ## ⚠️ 强制规则 — 必须先询问邮箱
 > 1. **执行任何操作前，必须先询问用户邮箱地址**
@@ -79,10 +77,10 @@ agent_created: true
         └── 失败 → 提示原因 (服务暂不可用 / 网络错误等) → 终止
 ```
 
-> **注意**：注册无需验证码，极速完成。**注册后即可立即使用全部功能**，确认邮件为可选项（仅充值时需验证邮箱）。
+> **注意**：注册无需验证码，极速完成。**注册后即可立即使用全部功能**，确认邮件为可选项（仅充值时需验证邮箱；验证码 15 分钟内有效，过期可重发）。
 > 
 
-### Step B：配额检查 / Quota Check
+### Step B：配额检查/ Quota Check
 
 ```
 凭证就绪后, 调网关查询配额:
@@ -105,7 +103,7 @@ agent_created: true
   额外检查:
 ```
 
-### Step C：按接口调用次数消耗配额 / Per-API-Call Quota Consumption
+### Step C：按接口调用次数消耗配额/ Per-API-Call Quota Consumption
 
 本技能的配额按**实际 API 接口调用次数**计费，不是按对话会话计费。
 
@@ -125,7 +123,7 @@ agent_created: true
 
 > 注：全球文献（API 4）无全文下载接口，仅返回元数据。
 
-**计次示例 / Counting Examples:**
+**计次示例**
 
 ```
 示例1：用户请求"查10篇工业母机论文，下载5篇中文PDF"
@@ -147,7 +145,7 @@ agent_created: true
   → 合计消耗: 1-2 次配额
 ```
 
-**扣减方式 / Deduction Method:**
+**扣减方式**
 
 **⚠️ 强制执行规则：每次调用计费接口前，必须先调 `/consume` 获取 token，再用 token 调 `/search`。**
 
@@ -177,14 +175,14 @@ agent_created: true
 
 > **MANDATORY**: Call `/consume` → `/search` for **EACH** billable API call. Token is single-use, expires in 60s. If 401 on /search, re-consume.
 
-**🛡️ Token 绑定调用链 / Token-Bound Call Chain:**
+**🛡️ Token 绑定调用链**
 
 > **强制安全机制 — 不可绕过：**
 > 每次调用计费接口前，必须通过 `/consume` 获取 `consume_token`，然后将 token 传给 `/search` 代理端点。
 > Gateway 验证 token 签名 + 有效期 + 防重放后才转发检索请求。
 > Token 由 GATEWAY_SECRET 签名，AI 无法伪造。无有效 token 则 /search 直接 401。
 >
-> **调用流程 / Call Flow:**
+> **调用流程**
 > ```
 > 1. POST /consume {"email":"...", "skill_source":"global-biblio-base"} → 返回 consume_token
 > 2. POST /search {"email":"...", "consume_token":"...", "skill_source":"global-biblio-base", "endpoint":"/search/cn", "rule":"..."}
@@ -193,15 +191,15 @@ agent_created: true
 >
 > **注意**：每个 consume_token 只能使用一次（防重放），有效期 60 秒。每次检索 API 调用前都需要先 /consume 获取新 token。
 
-**🆕 v36 行为：仅成功调用消耗配额 / Quota Deducted on Success Only:**
+**🆕 仅成功调用消耗配额**
 
 > `/consume` 仅验证配额可用性 + 签发 token，**不预扣配额**。配额在实际调用 SmartLib API 且返回成功后，由 Gateway 自动扣除。
 > **失败的 API 调用不消耗配额**（如参数错误导致 400、网络错误导致 500 等）。
 > `/consume` 返回的 `total_remain, email_verified, plan` 反映的是当前已成功调用的次数，非预扣后的值。
 
-**不计费的操作 / Non-billable Operations:**
+**不计费的操作**
 
-| 操作 / Operation | 说明 / Note |
+| 操作| 说明|
 |------|------|
 | /consume 配额消费 | Gateway 验证，不计费 |
 | 联网关键词扩展 | Web search，不计费 |
@@ -212,13 +210,13 @@ agent_created: true
 
 ---
 
-## 💰 套餐与额度 / Plans & Quota
+## 💰 套餐与额度/ Plans & Quota
 
 - 计费与升级由 SmartLib **统一钱包**管理，所有文献检索技能**统一定价、配额共享**。
 - **配额不足时自动弹套餐**：检索或下载配额接近用尽 / 已耗尽时，技能直接在对话中弹出下方套餐选择卡片，无需用户说任何口令；用户也可主动说「升级 / 充值 / 购买 / 我要升级」唤起同一卡片。
 - 企业 / 机构定制（API 接入、私有化部署）请联系 vipsmart@vipslib.com。
 
-### 当前套餐（与云端 v3.9.1 同步）
+### 当前套餐
 
 | 套餐 | plan key | 价格 | 检索次数 | 下载次数 | 有效期 | 限购 | 适用 |
 |------|----------|------|---------|---------|--------|------|------|
@@ -247,11 +245,11 @@ agent_created: true
    ⚠️ amount **必填且必须精确等于上方套餐表的「价格」**（网关会校验，偏差 >0.01 元直接 400 amount_mismatch）。取值：trial_card=9.9 / personal_month=39 / pro_month=99 / single_download=2.5 / download_pack=20。严禁留空、严禁写 0、**严禁用「分」**（如 990 会被判成 ¥990 而失败）。
    返回: {"qr_code", "out_trade_no", "amount", "plan", "quota", "channel":"alipay"}
    ↓
-③ 生成支付宝付款码 HTML（用 qrcode.js 渲染 qr_code；页面含套餐名/金额/配额/二维码/订单号；禁止显示用户邮箱）
+③ 生成支付宝付款码 HTML：**严格按 `references/pay_page_template.html` 标准样例输出，仅替换其中的 {{占位符}}（订单号/二维码/金额/套餐/脱敏邮箱/生成时间/过期时间/状态 URL），不得改变页面风格与文案**（样式：支付宝蓝渐变头部+订单卡片+倒计时；有效期文案：**二维码 30 分钟内有效**——网关 `timeout_express="30m"` 强制，勿写成 5 分钟或 2 小时；邮箱只允许脱敏显示 `p•••@domain.com`，禁止完整邮箱）
    ↓
 ④ 轮询支付状态:
    GET {SMARTLIB_GATEWAY_URL}/api/pay/alipay/status?out_trade_no=<out_trade_no>
-   （3s 轮询，最多 20 次≈60s；超时提示重新发起）
+   （付款码 30 分钟有效；AI 侧每 5s 轮询一次，约 60s 内未支付则提示"付款码仍有效，请扫码后等待到账，或回复「查状态」"；HTML 页面自带 5s 轮询+倒计时，页面状态以页面为准）
    支付成功返回 {"status":"paid","out_trade_no":...} → 对话通知"✅ 支付成功，已到账 N 次" + 自动重试上次中断的检索
 ```
 
@@ -270,14 +268,14 @@ agent_created: true
 > 对比：若返回 **200** 且 body 含 `qr_code` + `out_trade_no`，才是真正下单成功，此时才渲染二维码并展示真实订单号（见上方 ③）。
 
 ### 安全机制
-- `out_trade_no` UNIQUE 防重复充值；二维码 5 分钟有效
+- `out_trade_no` UNIQUE 防重复充值；二维码 **30 分钟**有效（网关 `timeout_express="30m"`，勿写 5 分钟/2 小时）
 - `/api/pay/alipay/status` 为公开端点（无需 Bearer），可直接轮询
 - `SMARTLIB_GATEWAY_SECRET` 仅后端调用，不在对话中输出
 - 生成的支付页面**禁止显示用户邮箱**
 
 ---
 
-## 🔒 配额耗尽处理 / Quota Exhaustion
+## 🔒 配额耗尽处理/ Quota Exhaustion
 
 配额耗尽后，**暂停新的检索请求**，不再展示任何部分结果，并**自动弹出套餐选择卡片**（见上方💰章节），不再要求用户说「我要升级」。
 
@@ -309,7 +307,7 @@ agent_created: true
 - 企业 / 机构定制仍联系我们
 
 
-## 输出规范 / Output Standards
+## 输出规范/ Output Standards
 
 **每次检索结果末尾必须展示配额状态：**
 
@@ -324,51 +322,51 @@ agent_created: true
 ```
 ```
 
-## 核心能力 / Core Capabilities
+## 核心能力/ Core Capabilities
 
-| 能力 / Capability | 说明 / Description |
+| 能力| 说明|
 |------|------|
-| **中文期刊检索 / Chinese Journal Search** | 8000万篇授权中文期刊文献，支持全文下载 / 80M authorized Chinese journal articles with full-text download |
-| **全球文献检索 / Global Literature Search** | 10亿篇中外文文献元数据（含中英文论文、专利、标准、学位论文等）/ 1B global literature metadata (papers, patents, standards, theses) |
-| **文献详情 / Article Detail** | 查看摘要、DOI、基金资助、核心收录等完整信息 / View abstracts, DOI, funding, core journal indexing |
-| **全文下载 / Full-text Download** | 授权中文期刊支持 PDF 全文下载 / PDF download for authorized Chinese journals |
-| **原始来源链接 / Source Links** | 每篇文献提供多个原始数据库详情链接（覆盖300+数据库，如Scopus/WoS/EI/PubMed等），覆盖率100%，平均4.75个/篇，可直接验证文献真实性 / Multi-database source links for authenticity verification |
-| **OA文献免费下载 / OA Free Download** | 十级多渠道自动探测OA文献PDF（ArXiv/Unpaywall/CORE/OpenAlex等），Gold/Hybrid/Bronze/Green OA免费获取，**不消耗SmartLib配额** / OA PDF auto-detection via 10 channels, no quota consumption |
-| **智能关键词扩展 / Smart Keyword Expansion** | 联网检索中英文同义词/近义词，自动扩展检索词，提升召回率 / Web search for synonyms to expand search terms |
-| **核心期刊优先排序 / Core Journal Priority** | 联网查询核心收录情况（SCI/EI/北大核心/CSSCI等），优先展示高水平文献 / Rank by core journal indexing (SCI/EI/CSSCI etc.) |
-| **相关性智能排序 / Relevance Ranking** | 基于题名、关键词、摘要语义分析，对检索结果进行二次相关性排序 / Semantic relevance re-ranking |
-| **少结果智能扩展 / Low-result Expansion** | 结果过少时自动推荐上位词、相关机构、学科分类号等多种扩展策略 / Auto-suggest broader terms and alternative strategies |
+| **中文期刊检索**| 8000万篇授权中文期刊文献，支持全文下载|
+| **全球文献检索**| 10亿篇中外文文献元数据（含中英文论文、专利、标准、学位论文等）/ 1B global literature metadata (papers, patents, standards, theses) |
+| **文献详情**| 查看摘要、DOI、基金资助、核心收录等完整信息|
+| **全文下载**| 授权中文期刊支持 PDF 全文下载|
+| **原始来源链接**| 每篇文献提供多个原始数据库详情链接（覆盖300+数据库，如Scopus/WoS/EI/PubMed等），覆盖率100%，平均4.75个/篇，可直接验证文献真实性|
+| **OA文献免费下载**| 十级多渠道自动探测OA文献PDF（ArXiv/Unpaywall/CORE/OpenAlex等），Gold/Hybrid/Bronze/Green OA免费获取，**不消耗SmartLib配额**|
+| **智能关键词扩展**| 联网检索中英文同义词/近义词，自动扩展检索词，提升召回率|
+| **核心期刊优先排序**| 联网查询核心收录情况（SCI/EI/北大核心/CSSCI等），优先展示高水平文献|
+| **相关性智能排序**| 基于题名、关键词、摘要语义分析，对检索结果进行二次相关性排序|
+| **少结果智能扩展**| 结果过少时自动推荐上位词、相关机构、学科分类号等多种扩展策略|
 
-## 能力边界 / Capability Boundaries
+## 能力边界/ Capability Boundaries
 
-### 支持的功能 / Supported
+### 支持的功能/ Supported
 
 - 中文期刊论文检索、详情、全文下载（8000 万篇授权文献）
 - 全球文献元数据检索（10 亿篇，含论文/专利/标准/学位论文等）
 - 关键词智能扩展、核心期刊优先排序、少结果自动扩展
 - 自然语言输入，无需学习检索语法
 
-### 不支持的功能 / Not Supported
+### 不支持的功能/ Not Supported
 
 - **付费墙内英文文献全文下载**：通过 SmartLib API 4 查到的全球文献仅返回元数据。本技能已集成十级多渠道下载策略（ArXiv/Unpaywall/CORE/OpenAlex/Semantic Scholar/Crossref/DOI.org/Europe PMC/bioRxiv/medRxiv + CDP浏览器），可免费获取 OA 版本（Gold/Hybrid/Bronze/Green OA），**OA 下载不消耗 SmartLib 配额**。但付费墙内（closed access）文献无法获取全文
 - **付费墙内文献**：不提供需单独购买的文献全文
 - **批量导出**：不提供 EndNote/BibTeX 等格式的批量导出功能
 - **文献查重/查新**：不具备论文查重或科技查新功能
 
-### 使用限制 / Limitations
+### 使用限制/ Limitations
 
-| 限制项 / Limit | 说明 / Description |
+| 限制项| 说明|
 |------|------|
-| **单次查询条数 / Per-query limit** | PageSize 20-1000，建议 ≤100 以保证速度 / Recommend ≤100 |
-| **翻页上限 / Max pages** | 无硬限制，但建议不超过 50 页（共 1000 条）/ No hard limit, but ≤50 pages recommended |
-| **请求频率 / Rate limit** | 有频率限制（未公开数值），触发 429 时自动等待重试 / Undisclosed limit; auto-retry on 429 |
-| **Token 有效期 / Token TTL** | Access Token 30 秒，Refresh Token 2 小时。系统自动管理刷新 / Access Token 30s, Refresh Token 2h. Auto-managed. |
-| **下载链接有效期 / Download URL TTL** | 约 10 分钟，过期需重新调用下载接口 / ~10min, re-call download API |
-| **依赖 / Dependencies** | 完全依赖 SmartLib API 和网络连接，离线不可用 / Requires network + SmartLib API |
+| **单次查询条数**| PageSize 20-1000，建议 ≤100 以保证速度|
+| **翻页上限**| 无硬限制，但建议不超过 50 页（共 1000 条）/ No hard limit, but ≤50 pages recommended |
+| **请求频率**| 有频率限制（未公开数值），触发 429 时自动等待重试|
+| **Token 有效期**| Access Token 30 秒，Refresh Token 2 小时（以下游 API 返回为准）。系统自动管理刷新|
+| **下载链接有效期**| 约 10 分钟（以下游返回为准），过期需重新调用下载接口|
+| **依赖**| 完全依赖 SmartLib API 和网络连接，离线不可用|
 
-### 触发意图区分 / Trigger Intent Differentiation
+### 触发意图区分/ Trigger Intent Differentiation
 
-| 用户表达 / User Expression | 系统行为 / System Behavior | 区分逻辑 / Rationale |
+| 用户表达| 系统行为| 区分逻辑|
 |------|------|------|
 | "查论文"、"找文献"、"检索XX" / "Search XX papers" | **触发本 Skill**，精准检索，默认平衡策略 | 明确的检索意图 |
 | "写文献综述"、"帮我写综述" / "Write a literature review" | **触发本 Skill**，切换为综述模式：宽检索策略、去重合并、按主题聚类 | 综述需更全的覆盖范围和聚类分析 |
@@ -378,28 +376,28 @@ agent_created: true
 | "帮我写论文"、"写作辅助" / "Help me write" | **不触发本 Skill** | 论文写作不是文献检索功能 |
 | "下载这篇论文的 PDF" / "Download this paper's PDF" | **触发本 Skill**（若有中文期刊 ID） | 下载是检索的延伸功能 |
 
-## 数据范围 / Data Coverage
+## 数据范围/ Data Coverage
 
 平台累计汇聚各类资源元数据总量达 **12.28 亿条**。
 
 > The platform aggregates **1.228 billion** metadata records.
 
-### 核心文献类型存量规模 / Core Literature Type Inventory
+### 核心文献类型存量规模/ Core Literature Type Inventory
 
-| 文献类型 / Type | 存量规模 / Inventory | 说明 / Notes |
+| 文献类型| 存量规模| 说明|
 |------|------|------|
-| **期刊文献 / Journal Articles** | **7.19 亿条 / 719M** | 平台核心资源 / Largest category |
-| **专利资源 / Patents** | **2.15 亿条 / 215M** | 第二大品类 / Second largest |
-| **会议论文 / Conference Papers** | **7155 万条 / 71.55M** | — |
-| **学位论文 / Theses & Dissertations** | **2473 万条 / 24.73M** | — |
-| **标准资源 / Standards** | **268 万条 / 2.68M** | — |
+| **期刊文献**| **7.19 亿条**| 平台核心资源|
+| **专利资源**| **2.15 亿条**| 第二大品类|
+| **会议论文**| **7155 万条**| — |
+| **学位论文**| **2473 万条**| — |
+| **标准资源**| **268 万条**| — |
 
-### 可检索数据集 / Searchable via API
+### 可检索数据集/ Searchable via API
 
-- **中文期刊数据集 / Chinese Journal Dataset**：8000 万篇授权中文期刊文献，支持全文下载 / 80M authorized Chinese journal articles with full-text download
-- **全球文献数据集 / Global Literature Dataset**：覆盖全平台 12.28 亿条元数据 / Covers all 1.228B metadata records
+- **中文期刊数据集**：8000 万篇授权中文期刊文献，支持全文下载
+- **全球文献数据集**：覆盖全平台 12.28 亿条元数据
 
-## 环境配置 / Environment Configuration
+## 环境配置/ Environment Configuration
 
 配置存储于技能目录下的 `config.json`：
 
@@ -415,13 +413,13 @@ agent_created: true
 
 Gateway 自动管理 SmartLib 凭证, 你不需要 APPID/APPSECRET。用户的 EMAIL 在首次注册后自动写入。运行前先读取 config.json 获取网关地址和密钥。
 
-## Token 管理 / Token Management
+## Token 管理/ Token Management
 
 SmartLib 的 OAuth Token 由 Gateway 全权管理。你无需获取或缓存 Token。
 
 Gateway 支持两种检索调用模式：
 
-### 推荐：语义化端点（v36+，更简洁）
+### 推荐：语义化端点（更简洁）
 
 ```
 POST /search
@@ -453,27 +451,27 @@ Body: {
 }
 ```
 
-## 检索接口选择策略 / Search Interface Selection
+## 检索接口选择策略/ Search Interface Selection
 
-| 用户需求特征 / User Intent | 推荐接口 / Recommended API | 原因 / Reason |
+| 用户需求特征| 推荐接口| 原因|
 |-------------|---------|------|
-| 查中文论文/需要全文 / Chinese papers, need full-text | 接口1（中文期刊检索）/ API 1 | 支持全文下载 / Full-text available |
-| 查英文论文/国际期刊 / English papers, intl. journals | 接口4（全球文献检索）/ API 4 | 覆盖范围更广 / Broader coverage |
-| 需要专利/标准/学位论文 / Patents, standards, theses | 接口4（全球文献检索）/ API 4 | 支持多种文献类型 / Multi-type support |
-| 不确定/跨语言检索 / Uncertain, cross-language | 优先接口4，再补充接口1 / API 4 first, supplement API 1 | 互为补充 / Complementary |
-| 明确指定中文来源 / Explicit Chinese source | 接口1（中文期刊检索）/ API 1 | 数据更精准 / More precise |
+| 查中文论文/需要全文| 接口1（中文期刊检索）/ API 1 | 支持全文下载|
+| 查英文论文/国际期刊| 接口4（全球文献检索）/ API 4 | 覆盖范围更广|
+| 需要专利/标准/学位论文| 接口4（全球文献检索）/ API 4 | 支持多种文献类型|
+| 不确定/跨语言检索| 优先接口4，再补充接口1| 互为补充|
+| 明确指定中文来源| 接口1（中文期刊检索）/ API 1 | 数据更精准|
 
-## 检索策略分级体系 / Search Strategy Hierarchy
+## 检索策略分级体系/ Search Strategy Hierarchy
 
-### 策略选择决策表 / Strategy Selection Matrix
+### 策略选择决策表/ Strategy Selection Matrix
 
-| 检索场景 / Scenario | 推荐策略 / Strategy | 目标 / Goal |
+| 检索场景| 推荐策略| 目标|
 |------|------|------|
-| 开题报告、文献综述、查新 / Thesis proposal, literature review, novelty check | **宽检索 / Broad** | 查全优先 / Recall-first |
-| 精准溯源、单篇确认、引用支撑 / Precise trace, citation verification, evidence finding | **窄检索 / Narrow** | 查准优先 / Precision-first |
-| 常规文献调研、一般检索 / General literature survey | **平衡策略 / Balanced (default)** | 查全查准兼顾 / Balanced |
+| 开题报告、文献综述、查新| **宽检索**| 查全优先|
+| 精准溯源、单篇确认、引用支撑| **窄检索**| 查准优先|
+| 常规文献调研、一般检索| **平衡策略**| 查全查准兼顾|
 
-### 策略切换信号 / Strategy Switch Signals
+### 策略切换信号/ Strategy Switch Signals
 
 执行检索后，系统根据结果自动评估是否需要切换策略：
 
@@ -483,9 +481,9 @@ Body: {
 
 ---
 
-## 可用接口 / Available Interfaces
+## 可用接口/ Available Interfaces
 
-### 1. 中文期刊文献检索 / Chinese Journal Search
+### 1. 中文期刊文献检索
 
 通过 Gateway /search 代理访问:
 
@@ -521,7 +519,7 @@ Body: {
 **排序 Sort：** 1=相关度（默认），2=时效性倒序，3=时效性正序
 **PageSize 范围：** 20~1000
 
-### 2. 中文期刊文献详情 / Chinese Journal Detail
+### 2. 中文期刊文献详情
 
 通过 Gateway /search 代理访问:
 
@@ -542,7 +540,7 @@ Body: {
 
 返回完整文献详情，包含摘要、DOI、页码、基金资助、核心收录、原始数据库来源链接等。
 
-### 3. 中文期刊文献下载 / Chinese Journal Download
+### 3. 中文期刊文献下载
 
 仅限授权中文期刊全文下载。
 
@@ -563,25 +561,25 @@ Body: {
 }
 ```
 
-返回 / Response：`{"Data": {"Url": "<下载链接>", "Identifier": "<文献ID>"}}`
+返回：`{"Data": {"Url": "<下载链接>", "Identifier": "<文献ID>"}}`
 
 ---
 
-### 3b. 全球文献全文多渠道下载 / Multi-channel Full-text Download
+### 3b. 全球文献全文多渠道下载/ Multi-channel Full-text Download
 
 SmartLib API 3 仅覆盖中文期刊全文。对于 API 4（全球文献检索）查到但有 DOI 的国际论文，本技能提供多级多渠道下载策略，最大化免费获取成功率。
 
-#### ⚡ 执行触发条件 / Execution Trigger
+#### ⚡ 执行触发条件/ Execution Trigger
 
 **仅在用户主动请求全文下载时才执行外文文献下载流程。** 检索结果展示后，默认只展示元数据；用户说"下载全文"/"获取PDF"/"帮我下载"时才触发。
 
 > Full-text download is **user-triggered only**. After search results are displayed, only metadata is shown. Execute download only when the user explicitly requests full-text (e.g., "下载全文", "获取PDF", "帮我下载").
 
-**触发关键词 / Trigger Keywords:**
+**触发关键词**
 - 中文：「下载全文」「获取PDF」「帮我下载」「我要看全文」「下载这篇/这些」
 - 英文：`download full-text` / `get PDF` / `download this paper`
 
-**执行规则 / Execution Rules:**
+**执行规则**
 
 ```
 用户请求下载全文:
@@ -593,11 +591,11 @@ SmartLib API 3 仅覆盖中文期刊全文。对于 API 4（全球文献检索�
        └── 每篇文献独立执行，并行处理（最多 10 篇并发）
 ```
 
-**结果标记规范 / Result Tagging Standard:**
+**结果标记规范**
 
 每篇外文文献下载完成后，必须在结果列表中标记获取状态。标记使用明确的图标+文字：
 
-| 标记 / Tag | 含义 / Meaning | 触发条件 |
+| 标记| 含义| 触发条件 |
 |------|------|------|
 | `[全文:已获取 ✓]` | PDF 已成功下载 | 任一渠道成功获取 PDF 文件 |
 | `[全文:在线 📖]` | 可在线阅读但无法自动下载 | Bronze OA / 出版商防盗链 |
@@ -605,7 +603,7 @@ SmartLib API 3 仅覆盖中文期刊全文。对于 API 4（全球文献检索�
 | `[全文:手动 🔍]` | 所有渠道均失败，需用户手动获取 | 无 OA 版本 / 网络错误 / 无 DOI |
 | `[全文:未尝试 -]` | 无 DOI 或未触发下载流程 | 文献无 DOI 或 API 4 未返回 DOI |
 
-**结果展示格式 / Display Format:**
+**结果展示格式**
 
 检索结果列表中，每篇外文文献末尾追加标记：
 
@@ -618,12 +616,12 @@ SmartLib API 3 仅覆盖中文期刊全文。对于 API 4（全球文献检索�
    [全文:已获取 ✓] → papers/attention_is_all_you_need.pdf
 ```
 
-**渠道执行报告 / Channel Execution Report:**
+**渠道执行报告**
 
 所有文献下载完成后，在结果末尾输出汇总表：
 
 ```
-## 📥 外文文献全文获取报告 / Full-text Retrieval Report
+## 📥 外文文献全文获取报告/ Full-text Retrieval Report
 
 | # | 文献标题 | DOI | 成功渠道 | 状态 | 备注 |
 |---|---------|-----|---------|------|------|
@@ -636,7 +634,7 @@ SmartLib API 3 仅覆盖中文期刊全文。对于 API 4（全球文献检索�
 > ✅ 成功 2/5 篇 | 📖 需在线阅读 1 篇 | 💰 付费墙 1 篇 | 🔍 需手动获取 1 篇
 ```
 
-#### 渠道优先级 / Channel Priority
+#### 渠道优先级/ Channel Priority
 
 | 优先级 | 渠道 | 适用条件 | 可靠性 | 费用 |
 |:--:|------|------|:--:|------|
@@ -651,7 +649,7 @@ SmartLib API 3 仅覆盖中文期刊全文。对于 API 4（全球文献检索�
 | **9** | **bioRxiv/medRxiv** | 生命科学预印本 | ★★★★☆ | 免费 |
 | **10** | **真实浏览器 CDP** | Bronze/Green OA | ★★★★☆ | 需服务器 |
 
-#### 下载决策树 / Download Decision Tree
+#### 下载决策树/ Download Decision Tree
 
 ```
 用户请求下载某篇论文
@@ -669,18 +667,18 @@ SmartLib API 3 仅覆盖中文期刊全文。对于 API 4（全球文献检索�
        └─ 全部失败 + Bronze/Green OA？ → 渠道 10：真实浏览器 CDP
 ```
 
-#### 出版商排障表 / Publisher Troubleshooting
+#### 出版商排障表/ Publisher Troubleshooting
 
 | 出版商 | 常见错误 | 原因 | 应对方案 |
 |------|------|------|------|
 | **OUP (Oxford)** | 403 Forbidden | Bronze OA，不开放自动化下载 | 渠道 10 CDP 模拟人工点击 |
-| **IEEE** | 403 / 418 | 需机构订阅 IP | CC-BY 论文可直接下；其余需机构权限 |
+| **IEEE** | 403| 需机构订阅 IP | CC-BY 论文可直接下；其余需机构权限 |
 | **Elsevier** | 403 | 付费墙 | 查 Green OA 版本 |
-| **Springer Nature** | 403 / 418 | 付费墙 + 机器人检测 | 查 ArXiv 预印本 |
-| **Nature / Science** | 403 | 几乎无免费 PDF | 查作者自存档 |
+| **Springer Nature** | 403| 付费墙 + 机器人检测 | 查 ArXiv 预印本 |
+| **Nature**| 403 | 几乎无免费 PDF | 查作者自存档 |
 | **Wiley** | 403 | 付费墙 | 同 Elsevier |
 
-#### 失败分类与用户引导 / Failure Classification
+#### 失败分类与用户引导/ Failure Classification
 
 | 失败原因 | 用户提示 |
 |------|------|
@@ -690,7 +688,7 @@ SmartLib API 3 仅覆盖中文期刊全文。对于 API 4（全球文献检索�
 
 ---
 
-### 4. 全球文献检索 / Global Literature Search
+### 4. 全球文献检索/ Global Literature Search
 
 通过 Gateway /search 代理访问:
 
@@ -715,7 +713,7 @@ Body: {
 
 检索表达式和过滤规则与中文期刊检索完全相同。网关统一返回结构：`{"data": {"list": [...], "total": N}, "notifications": [...]}`，**结果列表字段为 `data.list`（全小写）**；若个别旧接口回传 PascalCase（`Data.List`），请回退查找该键。
 
-### 5. 全球文献详情 / Global Literature Detail
+### 5. 全球文献详情/ Global Literature Detail
 
 通过 Gateway /search 代理访问:
 
@@ -736,34 +734,34 @@ Body: {
 
 ---
 
-## 使用指南 / Usage Guide
+## 使用指南/ Usage Guide
 
-### 完整工作流 / Complete Workflow
+### 完整工作流/ Complete Workflow
 
 ```
                     ┌──────────────────────────────────┐
-                    │ 1. 理解需求 / Understand Intent    │
+                    │ 1. 理解需求/ Understand Intent    │
                     └───────────────┬──────────────────┘
                                     ↓
                     ┌──────────────────────────────────┐
-                    │ 2. 选定检索策略 / Select Strategy │ ← 宽检索/窄检索/平衡
+                    │ 2. 选定检索策略 │ ← 宽检索/窄检索/平衡
                     └───────────────┬──────────────────┘
                                     ↓
               ┌─────────────────────────────────────────┐
-              │ 3. 关键词智能扩展 / Keyword Expansion     │
-              │ 4. 构建检索式 / Build Expression          │
-              │ 5. 选择接口 / Select API                  │
-              │ 6. 执行检索 / Execute Search              │
-              │ 7. 结果智能排序 / Smart Ranking           │
+              │ 3. 关键词智能扩展/ Keyword Expansion     │
+              │ 4. 构建检索式/ Build Expression          │
+              │ 5. 选择接口/ Select API                  │
+              │ 6. 执行检索/ Execute Search              │
+              │ 7. 结果智能排序/ Smart Ranking           │
               └─────────────────────┬───────────────────┘
                                     ↓
                     ┌──────────────────────────────────┐
-                    │ 8. 结果评估 / Evaluate Results     │
+                    │ 8. 结果评估/ Evaluate Results     │
                     └───────────────┬──────────────────┘
                           ┌─────────┴─────────┐
                           ↓                   ↓
               ┌───────────────────┐  ┌───────────────────┐
-              │ 结果满意 / Good   │  │ 结果需调整 / Needs │
+              │ 结果满意   │  │ 结果需调整 │
               │ → 步骤9          │  │ Adjustment         │
               └───────┬───────────┘  └─────────┬─────────┘
                       ↓                        ↓
@@ -790,7 +788,7 @@ Body: {
 - 下载结果以标记形式追加到结果列表中，并在末尾输出「全文获取报告」汇总表
 - **未触发下载时**：仅展示元数据，不执行任何下载操作
 
-### 关键词智能扩展 v2 / Smart Keyword Expansion v2
+### 关键词智能扩展
 
 > ⚠️ **核心原则**：SmartLib API 后端分词器（类似 IK Analyzer / mmseg4j）对中文复合词的索引已较完善。**召回不足的首要原因不是分词颗粒度问题，而是缩写/别名缺失、跨语言鸿沟和字段策略不当。**
 
@@ -855,7 +853,7 @@ Body: {
    - ✅ `K=自然语言处理`
    - ❌ `K=自然 AND K=语言 AND K=处理`（噪声大，不推荐）
 
-### 结果智能排序 / Smart Result Ranking
+### 结果智能排序/ Smart Result Ranking
 
 检索结果需进行二次智能排序，综合考虑以下因素（优先级从高到低）：
 
@@ -863,7 +861,7 @@ Body: {
 2. **内容相关性权重**：题名匹配 > 题名+关键词 > 摘要相关 > 仅关键词命中
 3. **时效性权重**：近 3 年文献给予适当加分
 
-### 结果数量自适应策略 / Adaptive Result Strategy
+### 结果数量自适应策略/ Adaptive Result Strategy
 
 **结果过少（< 5 篇）— 宽化扩展：**
 
@@ -882,7 +880,7 @@ Body: {
 4. 强化过滤条件（限定文献类型/语言/年份）
 5. 排序优化
 
-### 自然语言转检索表达式示例 / NL-to-Query Examples
+### 自然语言转检索表达式示例/ NL-to-Query Examples
 
 > **字段默认使用 `K=`（关键词），而非 `U=`（全字段）。`K=` 精度高、噪声少，是学术检索的标准字段。**
 
@@ -897,9 +895,9 @@ Body: {
 | 找关于知识图谱的论文 | `(K=知识图谱 OR K=knowledge graph OR K=KG)` | - | 接口1+4 |
 | NLP领域最新研究 | `(K=NLP OR K=自然语言处理 OR K=natural language processing)` | `Y=2024 OR Y=2025` | 接口1+4 |
 
-### 高级检索技巧 / Advanced Search Techniques
+### 高级检索技巧/ Advanced Search Techniques
 
-#### 引文追溯策略 / Citation Tracing
+#### 引文追溯策略/ Citation Tracing
 
 | 追溯方向 | 操作方式 | 适用场景 |
 |------|------|------|
@@ -909,11 +907,11 @@ Body: {
 | **参考文献反向查** | 提取参考文献标题，用 `T=` 逐一检索验证 | 确认引用文献是否在数据库中 |
 | **引用链追踪** | `L=分类号 OR C=分类号` | 在相同分类号下发现更多相关文献 |
 
-#### 分类号体系利用 / Classification-based Search
+#### 分类号体系利用/ Classification-based Search
 
 利用中图分类号（`L=`）和教育部学科分类号（`C=`）检索可绕过关键词歧义。常用分类号：`TP18`=人工智能，`TP391.1`=自然语言处理，`O413`=量子论，`0812`=计算机科学与技术。
 
-#### 字段选择策略矩阵 / Field Selection Matrix
+#### 字段选择策略矩阵/ Field Selection Matrix
 
 > **默认使用 `K=`（关键词字段）**。这是学术检索的标准做法——知网的"主题"检索、维普的人工标引关键词、WoS 的 Topic Search 均以关键词/主题词为核心检索入口。
 
@@ -926,7 +924,7 @@ Body: {
 | `O=` 机构 | 中 | 中 | 了解机构研究布局 |
 | `P=` 出版物 | 高 | 中 | 限定高质量期刊 |
 
-**字段分级检索流程 / Progressive Field Strategy:**
+**字段分级检索流程**
 
 ```
 默认（平衡策略）：
@@ -948,7 +946,7 @@ Body: {
   优先 T= 精确匹配，K= 辅助补充
 ```
 
-### 结果展示规范 / Result Display Standards
+### 结果展示规范/ Result Display Standards
 
 **检索结果列表**以编号列表形式展示，每篇文献包含：序号、核心收录标注、标题、作者、来源出版物、出版日期、摘要（截取前200字）、文献ID。
 
@@ -959,7 +957,7 @@ Body: {
 - "中文期刊文献支持全文下载"
 - "如需更多结果，可以说'下一页'"
 
-### 检索结果质量判断 / Result Quality Assessment
+### 检索结果质量判断/ Result Quality Assessment
 
 #### 核心收录标注解读
 
@@ -974,7 +972,7 @@ Body: {
 | `[北大核心]` | 北京大学核心期刊目录 | 中 |
 | `[CCF-A]` | 中国计算机学会 A 类会议/期刊 | 最高 |
 
-#### 用户自检清单 / User Quality Checklist
+#### 用户自检清单/ User Quality Checklist
 
 在引用或深入阅读文献前，建议用户快速核对：
 - [ ] **来源**：发表在什么期刊/会议上？是否为核心收录？
@@ -985,11 +983,11 @@ Body: {
 
 ---
 
-### 错误处理 / Error Handling
+### 错误处理/ Error Handling
 
 错误处理必须给出具体可操作的解决方案。网络波动时自动重试（最多 3 次，指数退避 1s→2s→4s）。
 
-#### 错误码处理表 / Error Code Handling
+#### 错误码处理表/ Error Code Handling
 
 | 状态码 | 含义 | 具体处理步骤 |
 |------|------|------|
@@ -1010,11 +1008,11 @@ Body: {
 | 问题 | 答案 |
 |------|------|
 | **检索不到想要的论文怎么办？** | 1. 去掉过滤条件扩大范围 2. 尝试上位词 3. 用英文关键词在接口4再试 4. 用 `U=` 替代 `T=` |
-| **全文下载失败怎么办？** | 仅中文期刊支持全文下载。下载 URL 约 10 分钟有效，过期需重新调用。英文文献自动走多渠道下载策略获取 OA 版本。 |
-| **Token 多久过期？** | Access Token 30 秒，Refresh Token 2 小时。系统自动管理刷新，用户无感知。 |
+| **全文下载失败怎么办？** | 仅中文期刊支持全文下载。下载 URL 约 10 分钟有效（以下游返回为准），过期需重新调用。英文文献自动走多渠道下载策略获取 OA 版本。 |
+| **Token 多久过期？** | Access Token 约 30 秒，Refresh Token 约 2 小时（以 API 返回为准）。系统自动管理刷新，用户无感知。 |
 | **英文文献能不能下全文？** | 本技能集成十级多渠道下载策略（ArXiv → Unpaywall → CORE → OpenAlex 等），Gold/Green/Hybrid OA 论文成功率 >85%。付费墙内论文无法获取。 |
 | **配额耗尽后还能用吗？** | 不能。试用额度耗尽后 Gateway 返回 429 拒绝所有检索请求，并自动弹出套餐选择；如需更高额度，回复套餐数字或说「升级 / 充值」即可（企业 / 机构定制联系 vipsmart@vipslib.com）。 |
-| **计费 token（consume_token）是一次性的吗？** | **是的，务必注意。** 每次 `/consume` 返回的 `consume_token` **仅能使用一次**且 **约 60 秒过期**。获取后要立刻调用 `/search` 或 `/download`，不要缓存或复用；过期/已用需重新 `/consume`。这与 SmartLib 云端 Access/Refresh Token（30s/2h，系统自动刷新）是两回事。 |
+| **计费 token（consume_token）是一次性的吗？** | **是的，务必注意。** 每次 `/consume` 返回的 `consume_token` **仅能使用一次**且 **约 60 秒过期**。获取后要立刻调用 `/search` 或 `/download`，不要缓存或复用；过期/已用需重新 `/consume`。这与 SmartLib 云端 Access/Refresh Token（约 30s/2h，以 API 返回为准，系统自动刷新）是两回事。 |
 | **Windows 下用 curl 下载 PDF 失败？** | 返回链接若含中文文件名，Git Bash 的 `curl` 常因 URL 编码失败而下载到空文件/报错。改用 **Python `urllib.request`** 直接拉取（自动处理编码），或直接用浏览器打开链接下载。 |
 | **中文关键词搜不到 / 命中少怎么办？** | 下游检索（维普系）对中文复合词与缩写别名的索引有限，纯中文窄词常召回不足。建议：① 补英文关键词（接口1+接口4 双检）② 用上位词/同义词扩检 ③ 用 `U=` 替代 `T=` ④ 去掉过滤条件扩大范围。详见下方「检索召回优化提示」。 |
 
@@ -1025,25 +1023,25 @@ Body: {
 下游检索（维普系）的分词与别名索引对中文复合词、缩写、中英鸿沟支持有限，**召回不足的首要原因通常不是分词颗粒度，而是缩写/别名缺失、跨语言鸿沟和字段策略不当**。实操清单：
 
 - **中英双检**：同一概念同时用中文（接口1）和英文（接口4）各检一次，覆盖率显著提升。
-- **上位词 / 同义词扩检**：如「深度学习」补「神经网络 / 机器学习」；「新冠」补「COVID-19 / SARS-CoV-2」。
+- **上位词 / 同义词扩检**：如「深度学习」补「神经网络 / 机器学习」；「新冠」补「COVID-19/ SARS-CoV-2」。
 - **字段渐进**：默认 `K=`（关键词），召回差时改用 `T=`（题名）精准定位，或 `U=`（任意字段）扩检。
 - **去掉过滤条件**：先广后窄，去掉 `TY=`/`LA=` 等过滤扩大范围，再人工筛选。
 - **缩写展开**：机构缩写（如「中科院」→「中国科学院」）、期刊缩写（如「JACS」→「Journal of the American Chemical Society」）务必展开。
 
 ---
 
-### API 调用注意事项 / API Call Notes
+### API 调用注意事项/ API Call Notes
 
 - **检索结果数据路径**：列表字段为 **`data.list`（全小写）**；解析优先级：`data.list` → `Data.List` → `List`。总条数在 `data.total` / `Data.Total`。
 - **Source 字段需详情接口获取**：检索列表中 `Source` 为空数组，原始数据库链接需调用详情接口。Source 数组元素结构为 `{"Source_DbId": "scopusjournal", "Source_DbTitle": "Scopus", "Source_Link": "https://..."}`，字段说明：`Source_DbId`=数据库标识符，`Source_DbTitle`=数据库中文名称，`Source_Link`=原始数据库详情页链接。平台覆盖300+数据库，100篇样本实测平均每篇4.75个链接，覆盖率100%。
 
 ---
 
-## 注意事项 / Notes
+## 注意事项/ Notes
 
 - 检索策略遵循三级分级体系：默认平衡策略，综述自动切换宽检索，引用自动切换窄检索
 - 检索→评估→调整→再检索是核心工作流
-- Access Token 有效期 30 秒，Refresh Token 2 小时，系统自动管理刷新
+- Access Token 有效期约 30 秒，Refresh Token 约 2 小时（以 API 返回为准），系统自动管理刷新
 - 全球文献检索（接口4）仅提供元数据，部分无全文
 - 中文期刊（接口1-3）支持全文下载，是核心优势，应优先推荐
 - PageSize 建议不超过 100
@@ -1055,45 +1053,17 @@ Body: {
 
 ---
 
-## 版本历史 / Version History
-
+## 版本历史
 | 版本 | 日期 | 核心变更 |
 |------|------|---------|
-| v1.0 | 2026-05 | 初次上线：中文期刊检索+全文下载，基础文献查询功能 |
-| v1.5 | 2026-05 | 新增全球文献检索，覆盖中外文双轨数据源 |
-| v1.6 | 2026-05 | 检索策略升级：三级分级体系（宽检索/窄检索/平衡），智能适应结果数量，结果质量评估 |
-| v2.0 | 2026-05 | 计费方式优化，按实际API调用次数计费更透明 |
-| v2.1 | 2026-05 | 计费说明更清晰：明确5个接口计费标准，附带使用示例 |
-| v2.2 | 2026-05 | 接口精确化：5个核心检索接口，每次成功调用计1次 |
-| v2.3 | 2026-05 | 外文文献下载增强：支持十级渠道自动探测，免费OA文献不消耗配额 |
-| v2.4 | 2026-05 | 下载改回用户主动触发模式，避免后台自动消耗配额 |
-| v2.5 | 2026-05 | 安全防护升级，防止第三方盗用配额 |
-| v2.6 | 2026-05 | 每篇文献附带原始数据库来源链接（覆盖300+数据库，平均4.75个链接/篇），可一键跳转验证 |
-| v2.7 | 2026-05 | OA文献免费下载（十级渠道），不消耗SmartLib配额；来源链接覆盖率提升 |
-| v2.8 | 2026-06 | 检索失败不消耗配额；检索命令简化（endpoint+rule格式） |
-| v2.9 | 2026-06 | 服务连接优化，检索速度提升 |
 | v3.0 | 2026-06 | 注册流程简化，新用户开通更快捷，无需验证码 |
-| v3.1 | 2026-06 | 注册赠送次数增加至100次/月；可订阅套餐最低1000次起 |
-| v3.2 | 2026-06 | 新用户引导体验优化，首次使用自动配置，无需手动设置 |
 | v3.3 | 2026-06 | 全球文献库扩充至12.28亿条；中文期刊8000万篇可下载 |
-| v3.4 | 2026-06 | 文献入口统一，跨技能联动更顺畅 |
-| v3.5 | 2026-06 | 技能调用可溯源，方便了解各渠道使用情况 |
-| v3.6 | 2026-06 | 版本日志优化，展示更简洁 |
-| v3.7 | 2026-07 | 分词匹配优化：4层关键词智能扩展v2（内置术语映射表+中英互译+上下位词）、字段分级检索策略（K→T→U渐进式）、默认检索字段由U=改为K=（对标知网/WoS标准）、NL示例更新（缩写扩展+中英混合）、字段选择矩阵新增分级流程 |
-| v3.8.0 | 2026-07 | 额度模型更新（v51）：暂停 basic/pro/enterprise 付费套餐销售，改为免费试用（100 次检索 + 10 次下载 / 月）+ 联系我们获取更高额度；描述与正文统一移除充值入口，付费引导改为联系方式 |
 | v3.9.0 | 2026-07 | 恢复付费套餐：新增体验卡 / 个人版月 / 专业版月 / 单篇下载 / 下载包多档选择；计费与升级统一由 references/account.md（smartlib-account）管理，所有文献检索技能统一定价、配额共享 |
-| v3.9.1 | 2026-07-19 | /quota 返回字段补充下载额度（download_quota_free / download_reset_at / download_paid_remain / download_remain），与 v52.1 统一钱包对齐 |
-| v3.9.2 | 2026-07-22 | 配额不足时自动弹出套餐选择与微信支付，无需再说「我要升级」；补充完整套餐映射表与支付流程（创建订单/二维码/轮询到账），购买使用已注册用户邮箱 |
-| v3.9.3 | 2026-07-22 | FAQ 补充 3 条实战提示：① consume_token 仅单次使用且约 60s 过期（与云端 Access/Refresh Token 区分）② Windows Git Bash curl 下载中文名 PDF 易失败→改用 Python urllib ③ 中文关键词命中低→中英双检/上位词扩检/字段渐进；新增「检索召回优化提示」小节 |
-| v3.9.4 | 2026-08-03 | description 精简至 ≤1024 字符（修复 Claude/豆包 上传 zip 报 "field 'description' must be at most 1024 characters"）；新增 AI 执行摘要层（D4），提升 agent 触发与执行可读性；功能与计费逻辑不变 |
-| v3.9.5 | 2026-08-27 | 支付体验优化：支付失败时不再给出无法支付的订单号，改为清晰的重试指引；修复了部分情况下支付必报金额错误的隐患 |
-| v3.9.6 | 2026-08-27 | 配置净化：移除配置文件中的个人邮箱与非必要冗余字段，隐私更清爽 |
-| v3.9.7 | 2026-08-27 | 配置文件结构优化：恢复并保留邮箱字段（默认空值），确保首次使用初始化更稳定 |
-| v3.10.0 | 2026-08-29 | 支付渠道切换为支付宝：对话内支付改用 `/api/pay/alipay/create` 生成支付宝付款码、轮询 `/api/pay/alipay/status`；后端双通道并存，老用户（未更新技能）仍走微信路径，不受影响 |
-
+| v3.10.0 | 2026-08-29 | 支付渠道切换为支付宝：对话内支付改用 `/api/pay/alipay/create` 生成支付宝付款码、轮询 `/api/pay/alipay/status`；后端双通道并存，老用户（未更新技能）支付通道不受影响 |
+| v3.10.1 | 2026-08-30 | 付款页规范化：新增 `references/pay_page_template.html` 标准付款页样例，对话中生成付款 HTML 必须严格按样例输出（仅替换占位符），统一支付宝蓝风格；修正付款码有效期文案为 **30 分钟**（对齐网关 `timeout_express=30m`，原先错误写成 5 分钟）；轮询策略与 30 分钟有效期对齐；文档事实一致性小修（套餐表标注与网关当前版本同步、Access/Refresh Token 与下载 URL 有效期标注"以 API/下游返回为准"、补充邮箱验证码 15 分钟有效）；文档全面清理（移除中英双语对照、只保留中文；版本历史精简为关键里程碑） |
 ---
 
-## 常驻通知转述（v52.2 起）
+## 常驻通知转述
 
 若任意 SmartLib 网关响应（`/search` 或 `/quota`）的 `notifications` 数组非空，将其中每条的 `text` **原样转述**给用户（含其中的 `url` 链接，用该 `text` 引导用户点击）。**不要改写措辞**，也不要合并多条。
 
