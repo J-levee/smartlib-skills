@@ -11,23 +11,22 @@
     5. 禁止把 Gateway 密钥 / consume_token / 任何内部配置写进页面。
   【占位符清单】
     {{OUT_TRADE_NO}}  网关返回的订单号（/api/pay/alipay/create → out_trade_no）
-    {{QR_TEXT}}       网关返回的 qr_code（https://qr.alipay.com/...）
-    {{QR_B64}}        二维码 base64 PNG（无现成 base64 时，改用下方「qrcodejs 渲染法」）
+    {{QR_TEXT}}       网关返回的 qr_code（形如 qr.alipay.com/...，用于「打不开」链接）
+    {{QR_B64}}        二维码 base64 PNG（唯一渲染方式，见下方【二维码渲染】）
     {{AMOUNT}}        金额，两位小数，如 2.50（必须与套餐表一致）
     {{PLAN_NAME}}     套餐中文名（单篇下载 / 下载包 / 个人版月 / 专业版月 / 试用卡）
     {{EMAIL_MASKED}}  已注册邮箱的脱敏形式（保留首字符 + *** + @域名）
-    {{GEN_TIME}}      二维码生成时间，如 2026-08-29 19:28:08 (GMT+8)
+    {{GEN_TIME}}      二维码生成时间，如 2026-08-30 10:00:00 (GMT+8)
     {{EXPIRE_TIME}}   预计过期时间 = 生成时间 + 30 分钟 (GMT+8)
     {{EXPIRE_MS}}     预计过期的毫秒时间戳（new Date(Date.now()+30*60*1000)）
-    {{STATUS_URL}}    状态轮询 URL：{GATEWAY}/api/pay/alipay/status?out_trade_no={单号}
-  【qrcodejs 渲染法（推荐，无需 base64）】
-    若拿不到 base64 PNG，可保留模板全部结构，仅把 <img id="qr" ...> 替换为：
-      <div id="qr" style="width:248px;height:248px;margin:0 auto;"></div>
-    并在 </script> 之前追加：
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-      <script>new QRCode(document.getElementById("qr"),{text:"{{QR_TEXT}}",width:220,height:220,correctLevel:QRCode.CorrectLevel.M});</script>
-    页面风格、有效期文案、倒计时、订单表一律不变。
-  【状态值】pending/paid/closed/fail（中文映射见脚本 STATUS_LABEL，勿改动）
+  【二维码渲染（唯一方式）】
+    必须使用 {{QR_B64}} 内嵌 base64 PNG（<img src="data:image/png;base64,...">）。
+    若无法获得 base64：用本地 Python 生成（qrcode 库）后内嵌，不要用其他方式。
+    ⚠️ 禁止加载任何远程 JS / 外部 CDN 脚本——供应链安全红线，二维码必须本地生成后内嵌。
+  【支付状态说明】
+    页面为纯静态展示（二维码 / 倒计时 / 订单信息），**不做自动状态轮询**；
+    支付状态由 AI 对话侧轮询 /api/pay/alipay/status 确认，页面提示用户付款后回对话告知 AI。
+  【状态值】pending/paid/closed/fail（AI 对话侧中文映射，页面不展示实时状态）
 -->
 <html lang="zh-CN">
 <head>
@@ -117,18 +116,17 @@
       <tr><td class="k">邮箱</td><td class="v">{{EMAIL_MASKED}} <span style="font-size:11px;color:var(--sub);">（已脱敏）</span></td></tr>
       <tr><td class="k">二维码生成时间</td><td class="v">{{GEN_TIME}}</td></tr>
       <tr><td class="k">预计过期时间</td><td class="v">{{EXPIRE_TIME}}</td></tr>
-      <tr><td class="k">支付状态</td><td class="v"><span class="badge pending" id="status"></span></td></tr>
+      <tr><td class="k">支付状态</td><td class="v"><span class="badge pending" id="status">待支付（以 AI 后台为准）</span></td></tr>
     </table>
     <div class="footer">
       本平台仅支持<b class="single">支付宝</b>一种付款方式，暂不支持微信等其他通道<br>
       二维码 <b class="single">30 分钟</b>内有效，倒计时归零即失效，请让 AI 重新出码<br>
-      状态由本页实时查询网关，若被浏览器拦截则以 AI 后台为准
+      扫码付款后，请回到对话告知 AI，由 AI 确认到账
     </div>
   </div>
 </div>
 <script>
   var EXPIRE = {{EXPIRE_MS}};
-  var STATUS_URL = "{{STATUS_URL}}";
   function pad(n){ return n<10 ? '0'+n : ''+n; }
   function tick(){
     var now = Date.now();
@@ -150,33 +148,6 @@
     requestAnimationFrame(tick);
   }
   tick();
-  // 状态中文映射（网关 API 返回英文状态码，前端展示中文）
-  var STATUS_LABEL = {
-    pending:'待支付', unpaid:'待支付', created:'待支付',
-    paid:'已支付', success:'已支付',
-    closed:'已关闭', fail:'支付失败', trade_closed:'已关闭'
-  };
-  function labelOf(st){ return STATUS_LABEL[st] || (st || '待支付'); }
-  function setStatus(st){
-    var badge = document.getElementById('status');
-    if (!badge) return;
-    badge.textContent = labelOf(st);
-    badge.className = 'badge ' + ((st === 'paid' || st === 'success') ? 'paid' : 'pending');
-  }
-  setStatus('pending');  // 初始值中文化
-  // 实时状态（CORS 失败则保持初始值，由 AI 后台确认）
-  function refreshStatus(){
-    if (!STATUS_URL) return;
-    fetch(STATUS_URL, {cache:'no-store'})
-      .then(function(r){ return r.json(); })
-      .then(function(d){
-        var st = (d && (d.status || d.trade_status)) || 'pending';
-        setStatus(st);
-      })
-      .catch(function(){ /* CORS 或被拦，忽略 */ });
-  }
-  refreshStatus();
-  setInterval(refreshStatus, 5000);
 </script>
 </body>
 </html>
